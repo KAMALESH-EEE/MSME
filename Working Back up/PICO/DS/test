@@ -1,0 +1,3 @@
+from MyDevices import HC,DS,SM
+
+print(SM.dis())
