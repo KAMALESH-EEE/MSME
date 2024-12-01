@@ -1,0 +1,58 @@
+from machine import Pin,UART
+from DS import DO,Speed
+import _thread
+
+import time
+
+time.sleep(5)
+
+uart = UART(0,baudrate =125000000)
+uart.INV_TX
+
+led = Pin(25,Pin.OUT)
+
+co=[]
+
+def Com():
+    global co,uart
+    while True:
+        if uart.any():
+            
+            a=uart.read()
+            
+            d=str(a).split("'")[1]
+            
+            addr=d[0:2]
+            if addr=='01':
+                d=d[3:]
+                co.append(d)
+
+_thread.start_new_thread(Com, ())
+
+while True:
+    try:
+        if not(len(co)==0):
+            led.off()
+            t=co.pop(0)
+            t=t[0:len(t)-1]
+            print(f'New command:{t}')
+            
+            if t=='c':
+                uart.write('01_c_')
+                
+            if t=='01':
+                led.on()
+            elif t == '02':
+                led.off()
+            else:
+                d=t.split(',')
+                if len(d)==2:
+                    DO(int(d[0]),int(d[1]))
+                elif len(d) ==3:
+                    DO(int(d[0]),int(d[1]))
+                    Speed=int(d[2])
+        time.sleep(0.5)
+    except:
+        print('Error')
+        led.on()
+

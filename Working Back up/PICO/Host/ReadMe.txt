@@ -1,3 +1,2 @@
-HOST Controller
-
-SYS ID: 00
+Drive System
+SYS ID: 02

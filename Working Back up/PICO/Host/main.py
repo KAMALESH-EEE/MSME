@@ -1,54 +1,112 @@
-from machine import Pin,UART,reset
-from DS import DO,Speed,spy
-import _thread
+from machine import Pin,UART,reset,PWM
+from time import sleep
 
-import time
-DO(0,0)
-print('Yes')
-uart = UART(0,baudrate =125000000)
+from Task import task,create_task
+import Feild
 
-led = Pin(25,Pin.OUT)
+from MyDevices import HC,DS,SM,RV,checkAll,Comm,Loop,Err,ib
 
 
+
+print(HC)
+
+HC.write("From HOST\n")
+HC.write("Checking Communication\n")
+
+i=1
+Comm.duty_u16(ib)
+for f in checkAll():
+    s='0'+str(i)+str(f)
+    i+=1
+    HC.write(s+'\n')
+tim=str(SM.Time()) 
+print('Time',tim)
+HC.write('Time '+tim+'\n')
+Comm.duty_u16(0)
 while True:
+    Loop.duty_u16(ib)
     try:
-        if uart.any():
-            a=uart.read()
-            d=str(a).split("'")[1]
-            print(d)
-            addr=d[0:2]
-            if addr=='01':
-                if d[3] == 'r':
-                    reset()
-                t=d[3:]
-                led.off()
+        if HC.any():
+            t=str(HC.read()).split("'")
+            n=t[1]
+            Err.duty_u16(0)
+            Loop.duty_u16(0)
+            
+            if n == 'w':
+                DS.forward()
+            elif n == 's':
+                DS.reverse()
+            elif n == 'a':
+                DS.left()
+            elif n == 'd':
+                DS.right()
+            elif n == ' ':
+                DS.stop()
                 
-                t=t[0:len(t)-1]
-                print(f'New command:{t}')
+            elif 's++' == n:
+                DS.cs(1)
+            elif 's--' == n:
+                DS.cs(-1)
                 
-                if t=='c':
-                    uart.write('01_c_')
-                    print('01_c_')
-                    led.on()
-                    time.sleep(5)
-                    led.off()
-                    
-                if t=='01':
-                    led.on()
-                elif t == '02':
-                    led.off()
-                elif t =='s':
-                    print("Yes it spray")
-                    spy()
+            elif n == 'dsr':
+                DS.rst()
+            elif n=='dht':
+                T,h=SM.DHT()
+                d=f'Tem: {T}, Hum: {h}'
+                print(d)
+                HC.write(d+'\n')
+                
+            elif n=='dis':
+                h=SM.dis()
+                d=f'Dis: {h} cm'
+                print(d)
+                HC.write(d+'\n')
+            
+            elif n=='pos':
+                lat,lon = SM.pos()
+                d=f'Lat: {lat} Lon: {lon}'
+                print(d)
+                HC.write(d+'\n')
+                
+            elif n=='spray':
+                SM.Spray()
+                
+            elif n=='task':
+                create_task()
+            
+            elif n=='field':
+                Feild.Mode()
+            
+            elif n=='rst':
+                reset()
+                
+            elif n=='err':
+                Feild.non()
+                
+            elif n=='det':
+                f=RV.detect()
+                print(f)
+                if f:
+                    HC.write("Disease detected\n")
                 else:
-                    d=t.split(',')
-                    if len(d)==2:
-                        DO(int(d[0]),int(d[1]))
-                    elif len(d) ==3:
-                        print('speed= ',Speed)
-                        Speed=int(d[2])
-                        DO(int(d[0]),int(d[1]))
-        time.sleep(0.5)
-    except:
+                    HC.write("No Disease detected\n")
+                    
+            elif n=='dets':
+                f=RV.detect()
+                print(f)
+                if f:
+                    HC.write("Disease detected\nFertilizer Sprayed\n")
+                    SM.Spray()
+                else:
+                    HC.write("No Disease detected\n")
+                
+            elif n=='Quit':
+                DS.stop()
+                break
+            
+    except :
+        Err.duty_u16(ib)
+        HC.write('Error!\n')
         print('Error')
-        led.on()
+        
+HC.write("Host is Exited from control\n to restart do it manually!\n")
