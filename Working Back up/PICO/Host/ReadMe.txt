@@ -1,2 +1,2 @@
-Drive System
-SYS ID: 02
+Host System
+SYS ID: 00
