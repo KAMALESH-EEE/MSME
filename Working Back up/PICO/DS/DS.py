@@ -1,7 +1,7 @@
 from machine import Pin,PWM
 import utime
 
-max_Speed = 2**16
+max_Speed = (2**16)-1
 Speed=5
 
 spm = Pin(4,Pin.OUT)
