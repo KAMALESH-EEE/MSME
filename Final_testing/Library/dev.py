@@ -2,15 +2,15 @@ from machine import Pin, UART
 import utime
 
 
-DATA = [0 for i in range(20)]
+DATA = [0 for i in range(20)] # Data Regiters
 DATA[0] = 'HOST'
 DATA[1] = 'A'
 
 class DEV:
     com = UART(0, buadrate = 115200)
     SlaveRegFlag = True
-    Slave_Value = [[0,0,0,0],[1,0,0,0],[0,1,0,0],[1,1,0,0]]
-    SPin = []
+    Slave_Value = [[0,0,0,0],[1,0,0,0],[0,1,0,0],[1,1,0,0]] #
+    SPin = [] #Slave Pin declearation added @ Rutime
 
     def __init__(self,ID,Name, Slave = False):
         self.ID = int(ID)
@@ -59,14 +59,29 @@ class DEV:
 
     def Read_Data(self):
         if DEV.com.any():
-            data=DEV.com.read()
-            if not self.Slave:          #Master read raw data
-                return str(data).split("'")[1]
-            else:
-                pass            #Slave decode and response.
+            raw_data=DEV.com.read()
+            data=raw_data.split("'")
+            if not self.Slave:              #Master read raw data
+                return data[1]
+            else:                           #Slave decode and response.
+                if data[2] == 'r':          #read operation
+                    DEV.com.write(DEV.reg_getdata(int(data[1])))
+                    print("Data Send")
+                elif data[2] == 'w':        #write operation
+                    DEV.reg_putdata(int(data[1]),data[3])
+                else:
+                    print("R/W error occures")                
         return False
-            
- 
+    
+
+    def reg_getdata(addr):
+        data = DEV.Encode(DATA[addr])
+        print(f"{data} @ {addr} reg")
+        return data
+    
+    def reg_putdata(addr,data):
+        DATA[addr] = DEV.Decode(data)
+
  
     def SetSlave():
         DEV.SPin = [Pin(18,Pin.OUT),Pin(19,Pin.OUT),Pin(20,Pin.OUT),Pin(21,Pin.OUT)]
@@ -80,3 +95,20 @@ class DEV:
         for S in DEV.SPin:
             S.value(DEV.Slave_Value[ID][i])
             i+=1
+
+    def Encode(data):           #Contruct the data with Type
+        dt='s'
+        if type(data) == int:
+            dt = 'd'
+        elif type(data) == float:
+            dt = 'f'
+        return str(data)+'_'+dt
+    
+    def Decode (data):          #Distruct the Data from Type
+        t=data.split('_')
+        dt=t[1]
+        if dt == 'd':
+            return int(t[0])
+        elif dt == 'f':
+            return float(t[0])
+        return t[0]
