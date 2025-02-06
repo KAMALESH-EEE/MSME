@@ -1,3 +1,16 @@
+'''
+File    : dev.py
+Author  : Kamalesh R
+Version : 0V02
+created : 04/02/2025
+Device  : All
+
+This is file is Library file which includes Common operation Like communication establishment 
+and common pheripheral setup
+'''
+
+
+
 from machine import Pin, UART
 import utime
 
@@ -7,7 +20,7 @@ DATA[0] = 'HOST'
 DATA[1] = 'A'
 
 class DEV:
-    com = UART(0, buadrate = 115200)
+    com = UART(0, baudrate = 115200)
     SlaveRegFlag = True
     Slave_Value = [[0,0,0,0],[1,0,0,0],[0,1,0,0],[1,1,0,0]] #
     SPin = [] #Slave Pin declearation added @ Rutime
@@ -16,6 +29,7 @@ class DEV:
         self.ID = int(ID)
         self.Name = Name
         self.Slave = Slave
+        self.BITE_Status = False 
         if Slave:
             if DEV.SlaveRegFlag:
                 DEV.SetSlave()
@@ -25,8 +39,17 @@ class DEV:
 
     def __str__(self):
         print(f'Device Name: {self.Name}\nID:{self.ID}')
+
+
+    def Write(self,addr,data): #Fuction for Device's Reg write from Host
+        cmd = str(addr)+"'w'"+str(DEV.Encode(data))
+        self.Send(cmd)
+
+    def Read(self,addr): #Fuction for Device's Reg read to Host
+        cmd = str(addr)+"'r"
+        return self.Send(cmd,R=True)
         
-    def Write_Data(self,data,R=False):
+    def Send(self,data,R=False): #UART Read/Write defintion
         if self.Slave:
             DEV.S_Sel(self.ID)
             utime.sleep(0.01)
@@ -36,7 +59,7 @@ class DEV:
             if R:
                 utime.sleep(1)
                 i=5
-                data = self.Read_Data()
+                data = self.Receive()
                 print("Reading",end=' .')
                 while (data == False):
                     if i == 0:
@@ -45,7 +68,7 @@ class DEV:
                         return None
                     print(" ",end='.')
                     utime.sleep(1)
-                    data = self.Read_Data()
+                    data = self.Receive()
                     i-=1
                 print(f"\nData:{data}")
                 DEV.S_Sel(0)
@@ -57,7 +80,7 @@ class DEV:
             print(f"Data Sent = {data}")
 
 
-    def Read_Data(self):
+    def Receive(self): # UART RX Decode
         if DEV.com.any():
             raw_data=DEV.com.read()
             data=raw_data.split("'")
@@ -73,6 +96,9 @@ class DEV:
                     print("R/W error occures")                
         return False
     
+    def BITE(self): # BITE() will be defined in future
+        pass
+
 
     def reg_getdata(addr):
         data = DEV.Encode(DATA[addr])
@@ -88,7 +114,7 @@ class DEV:
         for S_dev in DEV.SPin:
             S_dev.off()
             DEV.SlaveRegFlag = False
-            print("Slave Pins Configured")
+        print("Slave Pins Configured")
     
     def S_Sel (ID):
         i=0
