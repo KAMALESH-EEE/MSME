@@ -19,9 +19,18 @@ print("Device Declearing ....")
 _DD = DEV(1,"Disease Detector",True)
 _DS = DEV(2,"Driving System",True)
 _SM = DEV(3,"Sensor Module",True)
+HC = UART(1, tx =Pin(4),rx = Pin(5), baudrate=9600)
+
+led = Pin(25,Pin.OUT)
+
+D1 = Pin(6,Pin.OUT) #Main Loop
+D2 = Pin(7,Pin.OUT) #Waiting for User Input
+D3 = Pin(8,Pin.OUT) #Waiting for Module Response
+D4 = Pin(9,Pin.OUT) #Error
 
 MyDevices = [_DD,_DS,_SM]
 print("All Devices are Decleared \n PBIT:")
+Print("All Devices are Decleared \n PBIT:")
 
 
 #================= PBITE =========================
@@ -32,6 +41,21 @@ for dev in MyDevices:
     PBITE = PBITE and dev.BITE
 
 print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
+Print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
+
+
+#================ HC operation ===================
+
+def Input(s):
+    HC.write(s+'\n')
+    while not (HC.any()):
+        pass
+    t=str(HC.read()).split("'")
+    return t[1]
+
+def Print(s):
+    HC.write(s+'\n')
+
 
 #================ DS operation ===================
 
@@ -48,6 +72,17 @@ class DS:
     def stop():
         _DS.Write(5,0)
     
+    def forward():
+        _DS.Write(5,1)
+
+    def backward():
+        _DS.Write(5,2)
+    
+    def right():
+        _DS.Write(5,3)
+    
+    def left():
+        _DS.Write(5,4)
 
 
 
