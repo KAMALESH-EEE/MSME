@@ -30,18 +30,7 @@ D4 = Pin(9,Pin.OUT) #Error
 
 MyDevices = [_DD,_DS,_SM]
 print("All Devices are Decleared \n PBIT:")
-Print("All Devices are Decleared \n PBIT:")
 
-
-#================= PBITE =========================
-PBIT=True
-for dev in MyDevices:
-    dev.BITE()
-    print(f"{dev.Name} {dev.BITE}")
-    PBITE = PBITE and dev.BITE
-
-print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
-Print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
 
 
 #================ HC operation ===================
@@ -55,6 +44,17 @@ def Input(s):
 
 def Print(s):
     HC.write(s+'\n')
+
+
+#================= PBITE =========================
+PBIT=True
+for dev in MyDevices:
+    dev.BITE()
+    print(f"{dev.Name} {dev.BITE}")
+    PBITE = PBITE and dev.BITE
+
+print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
+Print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
 
 
 #================ DS operation ===================
@@ -84,6 +84,7 @@ class DS:
     def left():
         _DS.Write(5,4)
 
+    def 
 
 
 

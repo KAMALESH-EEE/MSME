@@ -82,7 +82,7 @@ class DEV:
 
     def Receive(self): # UART RX Decode
         if DEV.com.any():
-            raw_data=DEV.com.read()
+            raw_data=str(DEV.com.read())
             data=raw_data.split("'")
             if not self.Slave:              #Master read raw data
                 return data[1]
