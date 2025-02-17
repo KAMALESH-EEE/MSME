@@ -33,13 +33,12 @@ class DEV:
         if Slave:
             if DEV.SlaveRegFlag:
                 DEV.SetSlave()
-            print("Slave Device Configured")
+            print(f"{self.Name} Configured as Slave")
         else:
-            print("Master Device Configured")
+            print("{self.Name} Configured as Master")
 
     def __str__(self):
         print(f'Device Name: {self.Name}\nID:{self.ID}')
-
 
     def Write(self,addr,data): #Fuction for Device's Reg write from Host
         cmd = str(addr)+"'w'"+str(DEV.Encode(data))
@@ -54,8 +53,8 @@ class DEV:
             DEV.S_Sel(self.ID)
             utime.sleep(0.01)
             DEV.com.write(data)
+            print(data, "=>sent")
             utime.sleep(0.1)
-            print("Data sent")
             if R:
                 utime.sleep(1)
                 i=5
@@ -67,7 +66,7 @@ class DEV:
                         DEV.S_Sel(0)
                         return None
                     print(" ",end='.')
-                    utime.sleep(1)
+                    utime.sleep(0.5)
                     data = self.Receive()
                     i-=1
                 print(f"\nData:{data}")
@@ -83,21 +82,23 @@ class DEV:
     def Receive(self): # UART RX Decode
         if DEV.com.any():
             raw_data=str(DEV.com.read())
+            #raw_data="b'"+input()+"'"
             data=raw_data.split("'")
-            if not self.Slave:              #Master read raw data
-                return data[1]
+            if self.Slave:              #Master read raw data
+                return DEV.Decode(data[1])
             else:                           #Slave decode and response.
                 if data[2] == 'r':          #read operation
                     DEV.com.write(DEV.reg_getdata(int(data[1])))
-                    print("Data Send")
+                    print("Reg Data sent")
                 elif data[2] == 'w':        #write operation
                     DEV.reg_putdata(int(data[1]),data[3])
                 else:
-                    print("R/W error occures")                
+                    print("MEM R/W error occures")                
         return False
     
-    def BITE(self): # BITE() will be defined in future
-        pass
+    def BITE(self): # BITE() 
+        self.BITE_Status=(True if(self.Read(2) == self.ID) else False)
+
 
 
     def reg_getdata(addr):
@@ -107,6 +108,7 @@ class DEV:
     
     def reg_putdata(addr,data):
         DATA[addr] = DEV.Decode(data)
+        print(f"{data} => {addr} reg")
 
  
     def SetSlave():
@@ -138,3 +140,4 @@ class DEV:
         elif dt == 'f':
             return float(t[0])
         return t[0]
+

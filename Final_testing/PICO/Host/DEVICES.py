@@ -9,7 +9,7 @@ This file only for HOST module which includes the other module property decleara
 
 '''
 
-from dev import *
+from LIB import *
 from machine import Pin
 import utime
 
@@ -30,6 +30,7 @@ D4 = Pin(9,Pin.OUT) #Error
 
 MyDevices = [_DD,_DS,_SM]
 print("All Devices are Decleared \n PBIT:")
+led.on()
 
 
 
@@ -51,10 +52,11 @@ def Print(s):
 PBIT=True
 for dev in MyDevices:
     dev.BITE()
-    print(f"{dev.Name} {dev.BITE}")
-    PBITE = PBITE and dev.BITE
+    print(f"{dev.Name} : {dev.BITE_Status}")
+    PBIT = PBIT and dev.BITE_Status
 
-Print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
+Print(f"PBIT result {"PASS" if PBIT else "FAIL"}")
+led.off()
 
 
 #================ DS operation ===================
@@ -101,8 +103,3 @@ class DS:
     def speed_down():
         a=_DS.Read(6)
         DS.set_speed(a-1)
-
-    def 
-
-
-
