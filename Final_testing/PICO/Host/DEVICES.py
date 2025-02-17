@@ -43,6 +43,7 @@ def Input(s):
     return t[1]
 
 def Print(s):
+    print(s)
     HC.write(s+'\n')
 
 
@@ -53,7 +54,6 @@ for dev in MyDevices:
     print(f"{dev.Name} {dev.BITE}")
     PBITE = PBITE and dev.BITE
 
-print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
 Print(f"PBIT result {"PASS" if PBITE else "FAIL"}")
 
 
@@ -68,6 +68,7 @@ class DS:
     6:Speed
       
     '''
+    ListSpeed=[6553, 13106, 19659, 26212, 32765, 39318, 45871, 52424, 58977, 65534]
     
     def stop():
         _DS.Write(5,0)
@@ -84,8 +85,24 @@ class DS:
     def left():
         _DS.Write(5,4)
 
-    def 
 
+    def set_speed(a):
+        if (a>=0 and a<10):
+            _DS.Write(6,a)
+            if a == 9:
+                Print
+        else:
+            Print("Speed out of Range")
+        
+    def speed_up():
+        a=_DS.Read(6)
+        DS.set_speed(a+1)
+
+    def speed_down():
+        a=_DS.Read(6)
+        DS.set_speed(a-1)
+
+    def 
 
 
 
