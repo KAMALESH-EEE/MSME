@@ -9,7 +9,7 @@ This file only for HOST module which includes the other module property decleara
 
 '''
 
-from LIB import *
+from dev import *
 from machine import Pin
 import utime
 

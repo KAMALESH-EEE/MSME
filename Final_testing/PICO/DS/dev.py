@@ -16,8 +16,6 @@ import utime
 
 
 DATA = [0 for i in range(20)] # Data Regiters
-DATA[0] = 'HOST'
-DATA[1] = 'A'
 
 class DEV:
     com = UART(0, baudrate = 115200)
@@ -35,10 +33,10 @@ class DEV:
                 DEV.SetSlave()
             print(f"{self.Name} Configured as Slave")
         else:
-            print("{self.Name} Configured as Master")
+            print(f"{self.Name} Configured as Master")
 
     def __str__(self):
-        print(f'Device Name: {self.Name}\nID:{self.ID}')
+        return (f'Device Name: {self.Name}\nID:{self.ID}')
 
     def Write(self,addr,data): #Fuction for Device's Reg write from Host
         cmd = str(addr)+"'w'"+str(DEV.Encode(data))
@@ -48,7 +46,7 @@ class DEV:
         cmd = str(addr)+"'r"
         return self.Send(cmd,R=True)
         
-    def Send(self,data,R=False): #UART Read/Write defintion
+    def Send(self,data,R=False): #UART Read / Write defintion
         if self.Slave:
             DEV.S_Sel(self.ID)
             utime.sleep(0.01)
