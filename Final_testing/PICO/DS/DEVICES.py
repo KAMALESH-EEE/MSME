@@ -21,7 +21,8 @@ HOST = DEV(0,'HOST')
 DATA[0] = 'Driving System'
 DATA[1] = 2
 
-
+LED = Pin(25,Pin.OUT)
+LED.off()
 
 
 #==== PINs for Motors =======
@@ -72,22 +73,28 @@ Rmotors = [FRF,FRB,RRF,RRB]
 '''
 
 def forward(s):
+    print(f'forward [{s}]')
     for m in rmotors:
         m.duty_u16(0)
     for m in fmotors:
         m.duty_u16(s)
     
 def reverse(s):
+    print(f'reverse [{s}]')
     for m in fmotors:
         m.duty_u16(0)
     for m in rmotors:
         m.duty_u16(s)
 
 def stop(s):
+    print(f'stop [{s}]')
     for m in rmotors:
         m.duty_u16(0)
     for m in fmotors:
         m.duty_u16(0)
 
 #++++++++++++++++++++++++++++++++++++
+
+CMD =[stop,forward,reverse]
+
 

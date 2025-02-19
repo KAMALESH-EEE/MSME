@@ -78,9 +78,9 @@ class DEV:
 
 
     def Receive(self): # UART RX Decode
-        if DEV.com.any():
-            raw_data=str(DEV.com.read())
-            #raw_data="b'"+input()+"'"
+        if DEV.com.any() or True:
+            #raw_data=str(DEV.com.read())
+            raw_data="b'"+input()+"'"
             data=raw_data.split("'")
             if self.Slave:              #Master read raw data
                 return DEV.Decode(data[1])
@@ -91,23 +91,26 @@ class DEV:
                 elif data[2] == 'w':        #write operation
                     DEV.reg_putdata(int(data[1]),data[3])
                 else:
-                    print("MEM R/W error occures")                
+                    print("MEM R/W error occures")    
+                return True            
         return False
     
     def BITE(self): # BITE() 
         self.BITE_Status=(True if(self.Read(2) == self.ID) else False)
 
 
+#====== Internal Fuctions for PUT and GET data in LOCAL REG ============
 
     def reg_getdata(addr):
         data = DEV.Encode(DATA[addr])
-        print(f"{data} @ {addr} reg")
+        print(f"{DATA[addr]} @ {hex(addr)} reg")
         return data
     
     def reg_putdata(addr,data):
         DATA[addr] = DEV.Decode(data)
-        print(f"{data} => {addr} reg")
+        print(f"{DATA[addr]} => {hex(addr)} reg")
 
+ #=========================================================================
  
     def SetSlave():
         DEV.SPin = [Pin(18,Pin.OUT),Pin(19,Pin.OUT),Pin(20,Pin.OUT),Pin(21,Pin.OUT)]
@@ -138,4 +141,5 @@ class DEV:
         elif dt == 'f':
             return float(t[0])
         return t[0]
+
 
