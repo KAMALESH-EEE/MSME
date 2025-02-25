@@ -1,5 +1,5 @@
 import ujson
-from MyDevices import Input,Print
+from DEVICES import Input,Print
 
 class Fields:
     def __init__(self, name, row, col,no_plant, crop):

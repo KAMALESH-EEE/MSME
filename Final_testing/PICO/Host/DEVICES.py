@@ -36,16 +36,32 @@ led.on()
 
 #================ HC operation ===================
 
-def Input(s):
-    HC.write(s+'\n')
-    while not (HC.any()):
-        pass
-    t=str(HC.read()).split("'")
-    return t[1]
+def Input(s,wait=False):
+    if HC.any():
+        Print(str(HC.read())+" Not Used") 
+    HC.write(s)
+    if not wait:
+        while not (HC.any()):
+            pass
+        t=str(HC.read()).split("'")
+        return t[1]
+    else:
+        i=100
+        while i>0:
+            if HC.any():
+                t=str(HC.read()).split("'")
+                return t[1]
+            i=i-1
+            if (i%20 == 0):
+                HC.write('.')
+            utime.sleep(0.05)
+        HC.write('\n No Response \n')
+        return None
 
-def Print(s):
+
+def Print(s,end='\n'):
     print(s)
-    HC.write(s+'\n')
+    HC.write(str(s)+end)
 
 
 #================= PBITE =========================
@@ -90,16 +106,33 @@ class DS:
 
     def set_speed(a):
         if (a>=0 and a<10):
-            _DS.Write(6,a)
+            _DS.Write(6,DS.ListSpeed[a])
             if a == 9:
-                Print
+                Print("Max Speed Set")
+            elif a == 0:
+                Print("Min Speed Set")
         else:
             Print("Speed out of Range")
         
     def speed_up():
-        a=_DS.Read(6)
+        a=DS.ListSpeed.index(_DS.Read(6))
         DS.set_speed(a+1)
 
     def speed_down():
-        a=_DS.Read(6)
+        a=DS.ListSpeed.index(_DS.Read(6))
         DS.set_speed(a-1)
+
+#================ SM operation ===================
+class SM:
+    '''
+    Registers Details:
+    1 to 4 :Reserved
+    5:DHT-Temp
+    6:DHT-Hum
+    7:Distance
+    8:GPS-LAT
+    9:GPS-LON
+    10:Soil Mosture
+    11:
+    
+    '''

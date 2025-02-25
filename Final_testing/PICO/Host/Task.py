@@ -1,5 +1,5 @@
 from Feild import fields
-from MyDevices import DS,SM,RV,HC,Input,Print,com
+from DEVICES import DS,SM,RV,HC,Input,Print,com
 from time import sleep
 
 class Fert_Spray:
@@ -108,7 +108,7 @@ def create_task():
         Print(f'{i}->{f.name}')
         i+=1
     f=fields[int(Input('Enter Field ID:'))]
-    ch=int(Input('\tTask\n1->Fertilizer Spray\n2->Seeding\nEnter choice no:'))
+    ch=int(Input('\tTask\n1->Fertilizer Spray\n2->Seeding(Not Implemented)\nEnter choice no:'))
 #     except:
 #         
 #         Print('Error')
