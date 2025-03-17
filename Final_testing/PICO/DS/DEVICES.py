@@ -14,6 +14,7 @@ from machine import Pin, PWM
 import utime
 
 
+
 #========= HOST decleration ==============
 
 HOST = DEV(0,'HOST')
@@ -23,6 +24,7 @@ DATA[1] = 2
 
 LED = Pin(25,Pin.OUT)
 LED.off()
+
 
 
 #==== PINs for Motors =======
@@ -49,6 +51,7 @@ RRD = PWM(Pin(8), freq=50)
 #======== Servo Control Function ========
 
 def servo(angle):
+    angle = angle + 90
     if angle>=0 and angle<=180:
         return int(1900+(angle/180)*6100)
     return servo(90) # Streeing Disabled 
@@ -61,14 +64,19 @@ rmotors = [FLB,RLB,FRB,RRB]
 Lmotors = [FLF,FLB,RLF,RLB]
 Rmotors = [FRF,FRB,RRF,RRB]
 
+FSD = [FLD,FRD]
+RSD = [RLD,RRD]
+
 
 #======== Basic Functions =========
 
 '''
     Registers Details:
-    1 to 4 :Reserved
+    0 to 4 :Reserved
     5:Moving Operation {0:stop , 1:forward, 2: Reversed, 3:turn Right, 4:turn Left}
     6:Speed
+    7:Input angle
+    8:Servo Last set angle
       
 '''
 
@@ -86,15 +94,43 @@ def reverse(s):
     for m in rmotors:
         m.duty_u16(s)
 
-def stop(s):
+def stop(s=0):
     print(f'stop [{s}]')
     for m in rmotors:
         m.duty_u16(0)
     for m in fmotors:
         m.duty_u16(0)
 
+#======== Steering Defination============
+
+def Steering(Sers):
+    forward(int(DATA[6]/4))
+    while not(DATA[8]==DATA[7]):
+        if DATA[8]>DATA[7]:
+            DATA[8]-=1
+        elif DATA[8]<DATA[7]:
+            DATA[8]+=1
+        else:
+            print("No Changes")
+
+        for i in Sers:
+            i.duty_u16(servo(DATA[8]))
+        print(Sers,"Set"+DATA[8])
+        
+        if HOST.Receive():
+            stop()
+            break
+        
+        utime.sleep(0.05)
+    stop()
+
+    
+
+
+
 #++++++++++++++++++++++++++++++++++++
 
-CMD =[stop,forward,reverse]
+CMD =[stop,forward,reverse,Steering]
+
 
 

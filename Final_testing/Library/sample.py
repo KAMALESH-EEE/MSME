@@ -1,4 +1,4 @@
-a=5.6
-
-if type(a) == float:
-    print("Yes")
+a=[2,3]
+b=a[1]
+b=8
+print(a)
