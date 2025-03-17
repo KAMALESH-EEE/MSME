@@ -132,7 +132,7 @@ def preTask():
     for i in range(t):
         DS.forward()
         Print("Moving")
-        time.sleep(5)
+        sleep(5)
         
         
     
