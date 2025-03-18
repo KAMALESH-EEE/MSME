@@ -54,7 +54,7 @@ class DEV:
             print(data, "=>sent")
             utime.sleep(0.1)
             if R:
-                utime.sleep(1)
+                utime.sleep(0.25)
                 i=5
                 data = self.Receive()
                 print("Reading",end=' .')

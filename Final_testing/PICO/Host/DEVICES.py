@@ -81,9 +81,11 @@ class DS:
 
     '''
     Registers Details:
-    1 to 4 :Reserved
+    0 to 4 :Reserved
     5:Moving Operation {0:stop , 1:forward, 2: Reversed, 3:turn Right, 4:turn Left}
     6:Speed
+    7:Input angle
+    8:Servo Last set angle
       
     '''
     ListSpeed=[6553, 13106, 19659, 26212, 32765, 39318, 45871, 52424, 58977, 65534]
@@ -98,10 +100,10 @@ class DS:
         _DS.Write(5,2)
     
     def right():
-        _DS.Write(5,3)
+        _DS.Write(7,45)
     
     def left():
-        _DS.Write(5,4)
+        _DS.Write(7,-45)
 
 
     def set_speed(a):
@@ -136,3 +138,6 @@ class SM:
     11:
     
     '''
+    
+
+
