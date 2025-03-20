@@ -138,6 +138,14 @@ class SM:
     11:
     
     '''
+
+class RV:
+    '''
+    Registers Details:
+    
+    
+    '''
+
     
 
 
