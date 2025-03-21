@@ -1,64 +1,89 @@
 import tkinter as tk
-from tkinter import messagebox
-from datetime import datetime
 
-# Function to dynamically add names and status
-def add_item():
-    name = name_entry.get()
-    status = status_var.get()  # Gets the selected status ("Green" or "Red")
-    
-    if name:  # Only add if name is not empty
-        tk.Label(side_menu, text=f"{name}: {status}", font=("Arial", 12), bg="darkgray", fg="white").pack(pady=5, padx=10)
+# Global variable to store the current pop-up buttons
+popup_buttons = []
 
-    # Clear input fields
-    name_entry.delete(0, tk.END)
-    status_var.set("")
+def clear_previous_buttons():
+    # Destroy any existing buttons in the popup_buttons list
+    global popup_buttons
+    for button in popup_buttons:
+        button.destroy()
+    popup_buttons = []  # Clear the list
 
-# Function to update time and date
-def update_time():
-    current_time = datetime.now().strftime("%H:%M:%S")  # Get current time (24-hour format)
-    current_date = datetime.now().strftime("%Y-%m-%d")  # Get current date (Year-Month-Day)
+def show_buttons_1():
+    clear_previous_buttons()  # Clear the previous buttons
     
-    time_label.config(text=current_time)  # Update the time label
-    date_label.config(text=current_date)  # Update the date label
+    # Create and display 4 new buttons to the right of Main Button 1
+    btn1 = tk.Button(window, text="Popup 1A")
+    btn1.place(x=200, y=50)  # Place right of Main Button 1
+    popup_buttons.append(btn1)
     
-    # Call this function again after 1000 ms (1 second)
-    window.after(1000, update_time)
+    btn2 = tk.Button(window, text="Popup 1B")
+    btn2.place(x=200, y=80)
+    popup_buttons.append(btn2)
+    
+    btn3 = tk.Button(window, text="Popup 1C")
+    btn3.place(x=200, y=110)
+    popup_buttons.append(btn3)
+    
+    btn4 = tk.Button(window, text="Popup 1D")
+    btn4.place(x=200, y=140)
+    popup_buttons.append(btn4)
+
+def show_buttons_2():
+    clear_previous_buttons()  # Clear the previous buttons
+    
+    # Create and display 4 new buttons to the right of Main Button 2
+    btn1 = tk.Button(window, text="Popup 2A")
+    btn1.place(x=200, y=180)  # Place right of Main Button 2
+    popup_buttons.append(btn1)
+    
+    btn2 = tk.Button(window, text="Popup 2B")
+    btn2.place(x=200, y=210)
+    popup_buttons.append(btn2)
+    
+    btn3 = tk.Button(window, text="Popup 2C")
+    btn3.place(x=200, y=240)
+    popup_buttons.append(btn3)
+    
+    btn4 = tk.Button(window, text="Popup 2D")
+    btn4.place(x=200, y=270)
+    popup_buttons.append(btn4)
+
+def show_buttons_3():
+    clear_previous_buttons()  # Clear the previous buttons
+    
+    # Create and display 4 new buttons to the right of Main Button 3
+    btn1 = tk.Button(window, text="Popup 3A")
+    btn1.place(x=200, y=310)  # Place right of Main Button 3
+    popup_buttons.append(btn1)
+    
+    btn2 = tk.Button(window, text="Popup 3B")
+    btn2.place(x=200, y=340)
+    popup_buttons.append(btn2)
+    
+    btn3 = tk.Button(window, text="Popup 3C")
+    btn3.place(x=200, y=370)
+    popup_buttons.append(btn3)
+    
+    btn4 = tk.Button(window, text="Popup 3D")
+    btn4.place(x=200, y=400)
+    popup_buttons.append(btn4)
 
 # Main window
 window = tk.Tk()
-window.geometry("800x480")  # Set the resolution to fit the 800x480 screen
-window.title("Dynamic Menu with User Input")
-window.configure(bg="lightgray")
+window.geometry("400x500")
+window.title("Main Buttons Down, Pop-up Buttons to the Right")
 
-# Left side menu frame
-side_menu = tk.Frame(window, bg="darkgray", width=200)
-side_menu.pack(side="left", fill="y")
+# Main buttons to trigger the different sets of pop-up buttons
+main_button_1 = tk.Button(window, text="Main Button 1", command=show_buttons_1)
+main_button_1.place(x=50, y=50)  # Place Main Button 1 downwards
 
-# Add user input fields
-name_entry = tk.Entry(side_menu, font=("Arial", 14))
-name_entry.pack(pady=10, padx=10,)
+main_button_2 = tk.Button(window, text="Main Button 2", command=show_buttons_2)
+main_button_2.place(x=50, y=180)  # Place Main Button 2 downwards
 
-status_var = tk.StringVar()
-
-status_green = tk.Radiobutton(side_menu, text="Green", variable=status_var, value="Green", font=("Arial", 12), bg="darkgray", fg="white", selectcolor="darkgray")
-status_green.pack(pady=5)
-
-status_red = tk.Radiobutton(side_menu, text="Red", variable=status_var, value="Red", font=("Arial", 12), bg="darkgray", fg="white", selectcolor="darkgray")
-status_red.pack(pady=5)
-
-# Button to add name and status
-tk.Button(side_menu, text="Add", font=("Arial", 14), command=add_item).pack(pady=10, padx=10)
-
-# Create time and date labels
-time_label = tk.Label(window, font=("Arial", 40), bg="lightgray", fg="black")
-time_label.pack(pady=50)
-
-date_label = tk.Label(window, font=("Arial", 30), bg="lightgray", fg="black")
-date_label.pack(pady=20)
-
-# Initial call to update the time
-update_time()
+main_button_3 = tk.Button(window, text="Main Button 3", command=show_buttons_3)
+main_button_3.place(x=50, y=310)  # Place Main Button 3 downwards
 
 # Run the application
 window.mainloop()

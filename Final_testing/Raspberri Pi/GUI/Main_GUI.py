@@ -69,7 +69,7 @@ bottom_menu.pack(side="bottom", fill="x")
 tk.Button(side_menu, text="BITE", font=("Arial", 14), command=Will_Add).pack(pady=2, padx=50)
 tk.Button(side_menu, text="Field", font=("Arial", 14), command=Filed_window).pack(pady=2, padx=50)
 tk.Button(side_menu, text="Task", font=("Arial", 14), command=Will_Add).pack(pady=2, padx=50)
-tk.Button(side_menu, text="Save", font=("Arial", 14), command=Will_Add).pack(pady=2, padx=50)
+tk.Button(side_menu, text="Connect", font=("Arial", 14), command=Will_Add).pack(pady=2, padx=50)
 #tk.Button(side_menu, text="Exit", font=("Arial", 14), command=window.quit).pack(pady=10, padx=20)
 
 # Add buttons to the bottom menu
