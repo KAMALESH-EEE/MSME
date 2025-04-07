@@ -224,4 +224,3 @@ def Show(F):
     except:
         print("Error")
         Field_Close("Error",Field_add_window)
-
