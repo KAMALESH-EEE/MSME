@@ -32,7 +32,10 @@ MyDevices = [_DD,_DS,_SM]
 print("All Devices are Decleared \n PBIT:")
 led.on()
 
+DATA = [20]
 
+DATA[0] = 'Host System'
+DATA[1] = 0
 
 #================ HC operation ===================
 
@@ -126,6 +129,7 @@ class DS:
 
 #================ SM operation ===================
 class SM:
+    pass
     '''
     Registers Details:
     1 to 4 :Reserved
@@ -138,13 +142,31 @@ class SM:
     11:
     
     '''
-
+#================ RV operation ===================
 class RV:
+    pass
     '''
     Registers Details:
-    
-    
+    0 to 4 :Reserved
+    5: Host control {0->RV as Slave, 1-> RV as Temp Host}
+    6: Disease Detection
     '''
+
+    '''
+    HOST Register Details:
+    0 to 4 :Reserved
+    5: Host control {0->RV as Slave, 1-> RV as Temp Host}
+    6: Control Reg {HC->User control, Task-> Task assigned,}
+    7: Task Reg {plant,disease_det,fert_spray}
+    8: Field Details
+    9: 
+    '''
+
+
+#================ HC operation ===================
+
+class HC:
+    pass
 
     
 
