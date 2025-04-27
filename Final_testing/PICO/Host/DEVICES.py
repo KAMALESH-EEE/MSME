@@ -43,7 +43,7 @@ def Input(s,wait=False):
     if HC.any():
         Print(str(HC.read())+" Not Used") 
     HC.write(s)
-    if not wait:
+    if wait:
         while not (HC.any()):
             pass
         t=str(HC.read()).split("'")
@@ -58,13 +58,14 @@ def Input(s,wait=False):
             if (i%20 == 0):
                 HC.write('.')
             utime.sleep(0.05)
-        HC.write('\n No Response \n')
+        HC.write('\n No input Response \n')
         return None
 
 
 def Print(s,end='\n'):
     print(s)
     HC.write(str(s)+end)
+
 
 
 #================= PBITE =========================
@@ -143,13 +144,14 @@ class SM:
     
     '''
 #================ RV operation ===================
-class RV:
-    pass
+class DD:
+    
     '''
     Registers Details:
     0 to 4 :Reserved
     5: Host control {0->RV as Slave, 1-> RV as Temp Host}
     6: Disease Detection
+    7: Detection Status {0->Not started, DD-> disease detected, DN-> Not detected, W-> still detecting}
     '''
 
     '''
@@ -162,12 +164,65 @@ class RV:
     9: 
     '''
 
+    def Detect():
+        _DD.Write(6,1)
+        utime.sleep(4)
+        result=_DD.Read(7)
+
+        while result == 'W':
+            Print('Still detecting: <-')
+            
+            utime.sleep(4)
+            Usr_comand = User.raw_read()
+            if 'Q' in Usr_comand:
+                return 'Quit'
+            result=_DD.Read(7)
+
+
+        if result == 0:
+
+            while True:                
+                Usr_comand = Input('Detector not detecting: (Skip/Quit)',True)
+                if 'S' in Usr_comand :
+                    return False
+                elif 'Q' in Usr_comand :
+                    return 'Quit'
+                
+                else:
+                    Print('Invalid Command')
+        
+        elif result == DD :
+            return True
+        else:
+            return False
+        
 
 #================ HC operation ===================
 
-class HC:
-    pass
-
+class User:
     
+    def raw_read():
+        if HC.any():
+            t=str(HC.read()).split("'")
+            return t[1]    
+        else:
+            return ''
 
 
+
+class F_module:     #Functional Module
+    def Fert_spray():
+        pass
+
+class Automation:
+
+    def MoveNext():
+        DS.forward()
+        Print("Moving")
+        utime.sleep(10)
+
+    def MoveRight():
+        pass
+    
+    def MoveLeft():
+        pass

@@ -1,138 +1,67 @@
-from Feild import fields
-from DEVICES import DS,SM,RV,HC,Input,Print,com
-from time import sleep
+from DEVICES import *
+from utime import sleep
 
-class Fert_Spray:
+class Spray:
 
-    def __init__(self,Qunt,F):
-        self.Qunt=Qunt
-        self.Num=F.no_plant
-        self.F_Sprayed=0
-        self.F_skiped=0
-        self.f=F
+    def __init__(self,Field,spray_flag=True):
+        F_row,F_col = Field
+        Spray_flag  =   spray_flag
+        F_Matrix    =   [[False for i in range(F_row)] for j in range(F_col)]
+        F_total_plants = F_row * F_col
+        F_sprayed = 0
+        F_plant_skipped = 0
+        F_completed = 0
 
-    def __str__(self):
-
-        return f'Fertilizer Sprayer->completed {self.F_Sprayed + self.F_skiped}/{self.Num}'
-    
-    def Spray(self):
-        HC.write('Robot is ready to do task\n')
-        #HC.write('Waiting for your command:\n')
-        T,h=SM.DHT()
-        d=f'Tem: {T}, Hum: {h}'
-        Print(d)
-        Print('Waiting for remote command\n do-> start the task \n exit -> end the task')
-        while True:
-            if HC.any():
-                t=str(HC.read()).split("'")
-                n=t[1]
-                if n=='do':
-                    break
-                elif n=='exit':
-                    return 0
-            sleep(0.5)
-            
-        p=True
-        for j in range(self.f.row):
-            print('Next Rows')
-            for i in range(self.f.col):
-                if HC.any():
-                    n=Input('')
-                    if n=='exit':
-                        return (self.F_Sprayed)
-                print("DS>MOVE")
-                sleep(2)
-                DS.forward()
-                Print("running")
-                sleep(5)
-                DS.stop()
-                of=True
-#                 while True:
-#                     dis=int(SM.dis())
-#                     if dis<=25:
-#                         DS.stop()
-#                         Print('Obstracal Detected')
-#                         while True:
-#                             try:
-#                                 dis=int(SM.dis())
-#                             except:
-#                                 dis = 5
-#                             if dis>35:
-#                                 break
-#                             sleep(1)
-                pf=RV.detect()
-                if HC.any():
-                    n=Input('')
-                    if n=='sk':
-                        n='S'
-                        
-                    if n=='sp':
-                        n='D'
-                        
-                    if n=='exit':
-                        return (self.F_Sprayed)
+    def Start (self):
+        RightLeft_flag = True #{True -> next turn Right side False -> next turn Left}
         
-                else:
-                    n='S'
+        Print("Spray Task Starting....")
+        for j in range(self.F_col):
+            Print(f"Column: {j} started")
+            for i in range(self.F_row):
+                if ('Q' in User.raw_read()):
+                    Print("Task Quited by User")
+                    return ''
 
-                    if pf:
-                        n='D'
-    
+                Print(f"Row: {i} Checking....")
+                result = DD.Detect()
+                self.F_Matrix[j][i] = result
+                self.F_completed += 1
+                if result == 'Quit':
+                    Print("Task Quited by User")
+                    return''
+                elif result == True:
+                    Print("Disease Detected!")
+                    if self.Spray_flag == True:
+                        F_module.Fert_spray()
+                        self.F_sprayed += 1
+                        Print("\t Fertilizer Sprayed!")
                     else:
-                        n='S'
-        
+                        self.F_plant_skipped += 1
+                        Print("\t Not Sprayed")
                 
-                
-                if n=='D':
-                    print("FS>SPRAR")
-                    Print("Dis detected and Fert is Sparying")
-                    SM.Spray()
-                    self.F_Sprayed+=1
+                elif result == False:
+                    Print("Disease not Detected!")
+                    self.F_plant_skipped += 1
+                    Print("\t Not Sprayed")
                 else:
-                    Print('No Disease deteced')
-                    self.F_skiped+=1
-#             print('DS>turn')
-#             Print('Turnning')
-                    
-        return (self.F_Sprayed)
+                    Print(f"Invalid result ({result})")
+                    self.F_plant_skipped += 1
+                    Print("\t Skipped...")
+
+                Automation.MoveNext()
+                
+            if RightLeft_flag:
+                Automation.MoveRight()
+            else:
+                Automation.MoveLeft()    
             
+            RightLeft_flag = not RightLeft_flag
 
-task =[Fert_Spray]
+        Print('Task Completed Sucessfuly')
+                                  
+        
 
-def create_task():
-    global task,fields
-    i=0
-    f=fields[0]
-    #try:
-    for f in fields:
-        Print(f'{i}->{f.name}')
-        i+=1
-    f=fields[int(Input('Enter Field ID:'))]
-    ch=int(Input('\tTask\n1->Fertilizer Spray\n2->Seeding(Not Implemented)\nEnter choice no:'))
-#     except:
-#         
-#         Print('Error')
-#         return
-    if ch==1:
-        ts = Fert_Spray(0.5,f)
-        Print(f'Task Created in {f.name} Field')
-        ts.Spray()
-        S=str(ts)
-        print(S)
-        Print(S+"\n")
-        S=(f'Sprayed: {ts.F_Sprayed} Skipped: {ts.F_skiped}')
-        print(S)
-        Print(S+"\n")
-
-#create_task()
+    def Result (self):
+        pass
         
-def preTask():
-    t=int(Input('Enter No.of.Plant:'))
-    
-    for i in range(t):
-        DS.forward()
-        Print("Moving")
-        sleep(5)
-        
-        
-    
