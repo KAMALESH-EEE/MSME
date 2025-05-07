@@ -59,8 +59,7 @@ class Spray:
             RightLeft_flag = not RightLeft_flag
 
         Print('Task Completed Sucessfuly')
-                                  
-        
+ 
 
     def Result (self):
         pass
