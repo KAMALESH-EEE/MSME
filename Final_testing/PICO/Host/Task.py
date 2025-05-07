@@ -1,5 +1,5 @@
 from DEVICES import *
-from utime import sleep
+from time import sleep
 
 class Spray:
 

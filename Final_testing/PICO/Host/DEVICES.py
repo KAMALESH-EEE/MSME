@@ -9,7 +9,7 @@ This file only for HOST module which includes the other module property decleara
 
 '''
 
-from dev import *
+from Final_testing.PICO.DS.dev import *
 from machine import Pin
 import utime
 

@@ -78,9 +78,9 @@ class DEV:
 
 
     def Receive(self): # UART RX Decode
-        if DEV.com.any() or True:
-            #raw_data=str(DEV.com.read())
-            raw_data="b'"+input()+"'"
+        if DEV.com.any():
+            raw_data=str(DEV.com.read())
+            #raw_data="b'"+input()+"'"
             data=raw_data.split("'")
             if self.Slave:              #Master read raw data
                 return DEV.Decode(data[1])
