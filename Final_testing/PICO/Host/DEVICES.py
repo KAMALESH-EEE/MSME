@@ -9,7 +9,7 @@ This file only for HOST module which includes the other module property decleara
 
 '''
 
-from Final_testing.PICO.DS.dev import *
+from dev import *
 from machine import Pin
 import utime
 
@@ -19,9 +19,11 @@ print("Device Declearing ....")
 _DD = DEV(1,"Disease Detector",True)
 _DS = DEV(2,"Driving System",True)
 _SM = DEV(3,"Sensor Module",True)
+
 HC = UART(1, tx =Pin(4),rx = Pin(5), baudrate=9600)
 
 led = Pin(25,Pin.OUT)
+led.off()
 
 D1 = Pin(6,Pin.OUT) #Main Loop
 D2 = Pin(7,Pin.OUT) #Waiting for User Input
@@ -32,7 +34,7 @@ MyDevices = [_DD,_DS,_SM]
 print("All Devices are Decleared \n PBIT:")
 led.on()
 
-DATA = [20]
+DATA = [0 for i in range(20)]
 
 DATA[0] = 'Host System'
 DATA[1] = 0
@@ -70,7 +72,11 @@ def Print(s,end='\n'):
 
 #================= PBITE =========================
 PBIT=True
+_DS.BITE()
+PBIT = PBIT and _DS.BITE_Status
 for dev in MyDevices:
+    Print("PBIT skipped")
+    continue
     dev.BITE()
     print(f"{dev.Name} : {dev.BITE_Status}")
     PBIT = PBIT and dev.BITE_Status
@@ -93,6 +99,8 @@ class DS:
       
     '''
     ListSpeed=[6553, 13106, 19659, 26212, 32765, 39318, 45871, 52424, 58977, 65534]
+    
+    
     
     def stop():
         _DS.Write(5,0)
@@ -226,3 +234,13 @@ class Automation:
     
     def MoveLeft():
         pass
+
+
+
+#=================For testing =========================
+    
+print(_DS.Read(0))
+    
+    
+    
+    

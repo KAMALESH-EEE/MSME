@@ -73,7 +73,7 @@ RSD = [RLD,RRD]
 '''
     Registers Details:
     0 to 4 :Reserved
-    5:Moving Operation {0:stop , 1:forward, 2: Reversed, 3:turn Right, 4:turn Left}
+    5:Moving Operation {0:stop , 1:forward, 2: Reversed, 3:Turning}
     6:Speed
     7:Input angle
     8:Servo Last set angle
@@ -103,26 +103,60 @@ def stop(s=0):
 
 #======== Steering Defination============
 
-def Steering(Sers):
+def Steering():
+    #global FLD,FRD,RLD,RRD
     forward(int(DATA[6]/4))
     while not(DATA[8]==DATA[7]):
-        if DATA[8]>DATA[7]:
-            DATA[8]-=1
-        elif DATA[8]<DATA[7]:
-            DATA[8]+=1
-        else:
-            print("No Changes")
+        if (DATA[7]%2 == 1):
+            DATA[7] = int(DATA[7]/2) *2
+        print(DATA[8])
+        if DATA[8]> DATA[7]:
+            DATA[8]-=2
+            DATA[9]-=2
+            DATA[10]-=1
+            DATA[11]-=1
 
-        for i in Sers:
-            i.duty_u16(servo(DATA[8]))
-        print(Sers,"Set"+DATA[8])
-        
-        if HOST.Receive():
+        elif DATA[8]< DATA[7]:
+            DATA[8]+=2
+            DATA[9]+=2
+            DATA[10]+=1
+            DATA[11]+=1
+        else:
+            DATA[8] = DATA[7]
+            #print("No Changes")
+
+        FLD.duty_u16(servo(DATA[8]))
+        #FLD.duty_u16(30)
+
+        FRD.duty_u16(servo(DATA[9]))
+        RLD.duty_u16(servo(DATA[10]))
+        RRD.duty_u16(servo(DATA[11]))
+
+        HOST.Receive()
+        if not DATA[5] == 3:
             stop()
             break
         
-        utime.sleep(0.05)
+        utime.sleep(0.1)
     stop()
+    DATA[5] = 0 #clearing Turning flag
+
+
+
+#=======================================
+
+def OPERATION():
+    #Handling Moving Operation
+    temp_OP = DATA[5]
+    if temp_OP == 0:
+        stop()
+    elif temp_OP == 1:
+        forward(DATA[6])
+    elif temp_OP == 2:
+        reverse(DATA[6])
+    elif temp_OP == 3:
+        Steering()
+
 
 
 #++++++++++++++++++++++++++++++++++++

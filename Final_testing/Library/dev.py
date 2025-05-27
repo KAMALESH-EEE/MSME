@@ -48,7 +48,7 @@ class DEV:
         
     def Send(self,data,R=False): #UART Read / Write defintion
         if self.Slave:
-            DEV.S_Sel(self.ID)
+            DEV.S_Sel(self.ID -1)
             utime.sleep(0.01)
             DEV.com.write(data)
             print(data, "=>sent")
@@ -67,7 +67,7 @@ class DEV:
                     utime.sleep(0.5)
                     data = self.Receive()
                     i-=1
-                print(f"\nData:{data}")
+                print(f"\nReceived Data: {data}")
                 DEV.S_Sel(0)
                 return data 
             else:
@@ -81,22 +81,30 @@ class DEV:
         if DEV.com.any():
             raw_data=str(DEV.com.read())
             #raw_data="b'"+input()+"'"
-            data=raw_data.split("'")
+            print('\nRAW:'+raw_data)
+
+            if 'b"' in raw_data:
+                data=raw_data.split('"')[1].split("'")
+
+            else:
+                data = raw_data[2:-1].split("'")
+
+
             if self.Slave:              #Master read raw data
-                return DEV.Decode(data[1])
+                return DEV.Decode(data[0])
             else:                           #Slave decode and response.
-                if data[2] == 'r':          #read operation
-                    DEV.com.write(DEV.reg_getdata(int(data[1])))
+                if data[1] == 'r':          #read operation
+                    DEV.com.write(DEV.reg_getdata(int(data[0])))
                     print("Reg Data sent")
-                elif data[2] == 'w':        #write operation
-                    DEV.reg_putdata(int(data[1]),data[3])
+                elif data[1] == 'w':        #write operation
+                    DEV.reg_putdata(int(data[0]),data[2])
                 else:
                     print("MEM R/W error occures")    
                 return True            
         return False
     
     def BITE(self): # BITE() 
-        self.BITE_Status=(True if(self.Read(2) == self.ID) else False)
+        self.BITE_Status=(True if(self.Read(1) == self.ID) else False)
 
 
 #====== Internal Fuctions for PUT and GET data in LOCAL REG ============
@@ -141,5 +149,7 @@ class DEV:
         elif dt == 'f':
             return float(t[0])
         return t[0]
+
+
 
 
