@@ -4,13 +4,14 @@ from time import sleep
 class Spray:
 
     def __init__(self,Field,spray_flag=True):
-        F_row,F_col = Field
-        Spray_flag  =   spray_flag
-        F_Matrix    =   [[False for i in range(F_row)] for j in range(F_col)]
-        F_total_plants = F_row * F_col
-        F_sprayed = 0
-        F_plant_skipped = 0
-        F_completed = 0
+        self.F_row,self.F_col = Field
+        self.Spray_flag  =   spray_flag
+        self.F_Matrix    =   [[False for i in range(self.F_row)] for j in range(self.F_col)]
+        print(self.F_Matrix)
+        self.F_total_plants = self.F_row * self.F_col
+        self.F_sprayed = 0
+        self.F_plant_skipped = 0
+        self.F_completed = 0
 
     def Start (self):
         RightLeft_flag = True #{True -> next turn Right side False -> next turn Left}
@@ -63,4 +64,3 @@ class Spray:
 
     def Result (self):
         pass
-        

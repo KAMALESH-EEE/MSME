@@ -9,9 +9,14 @@ This file only for HOST module which includes the other module property decleara
 
 '''
 
-from dev import *
+
+
+
+from Task import Spray
 from machine import Pin
-import utime
+from dev import *
+from Feild import Fields
+import time
 
 #============= Declearing Modules ======================
 
@@ -33,6 +38,9 @@ D4 = Pin(9,Pin.OUT) #Error
 MyDevices = [_DD,_DS,_SM]
 print("All Devices are Decleared \n PBIT:")
 led.on()
+
+
+PASSWORD = 'DO'
 
 DATA = [0 for i in range(20)]
 
@@ -81,7 +89,7 @@ for dev in MyDevices:
     print(f"{dev.Name} : {dev.BITE_Status}")
     PBIT = PBIT and dev.BITE_Status
 
-Print(f"PBIT result {"PASS" if PBIT else "FAIL"}")
+Print(f'PBIT result {"PASS" if PBIT else "FAIL"}')
 led.off()
 
 
@@ -153,21 +161,127 @@ class SM:
     '''
 #================ RV operation ===================
 class DD:
+
+    tk_Feild = None
+
+    
+    def Query (A):
+        return ''
+    
+    def Task_Open ():
+        
+        if DD.tk_Feild == None:
+            Print('Feild Not assigned')
+            DD.Task_Close()
+            return
+        
+        DATA[6] = 'Task' # Set USER Control to Auto (User can't Access rover, only Task command)
+
+        F_dim = [DD.tk_Feild.row,DD.tk_Feild.col]
+        if DATA[7] == 'spray':
+            Task = Spray (F_dim)
+
+        elif DATA[7] == 'plant':
+            Task = plant (F_dim)
+
+        Print('Task Created')
+        st = Input('Enter password to start task: ',wait= True)
+
+        while st != PASSWORD:
+            st = Input('Wrong Password Retry: ',wait= True)
+        
+        Print('SPRAYING IN PROGRESS')
+        Task.Start()
+
+
+        DD.Task_Close()
+
+    
+    def Task_Close ():
+
+        DD.tk_Feild = None
+        DATA[5] = 0 # Set Master control to HOST 
+        DATA[6] = 'HC'
+        DATA[7] = None
+
+
+    def USER_DD():
+        DATA[5] = 1
+        _iC,_jC = 0,0
+        
+        while DATA[5] == 1:
+            _DD.Write(5,1)
+            _jC+= 1
+
+            if _jC == 6:
+                print('DD as Master limit reached')
+
+            while _DD.Read(5) ==1:
+                sleep(0.2)
+                if _iC == 50:
+                    Print('Time Out from DD response')
+                    break
+                _iC+=1
+            
+            if _DD.Read(5) == 2:
+                cmd = _DD.Read(10)
+
+                if 'REG' == cmd:
+                    addr = _DD.Read(18)
+                    Data = _DD.Read(19)
+                    if addr > 4 and addr < 20:
+                        DATA[addr] = Data
+                    else :
+                        Print('Address from DD cant accessable ')
+                    _DD.Write(5,1)
+                
+                elif cmd.lower()  == 'spray':
+                    f_Name = _DD.Read(11)
+                    f_Row  = _DD.Read(12)
+                    f_Col  = _DD.Read(13)
+                    f_Crop = _DD.Read(14)
+
+                    DD.tk_Feild = Fields(f_Name,f_Row,f_Col,f_Row*f_Col,f_Crop)
+                    DATA[7] = 'spray'                                   
+                _DD.Write(10,0)
+                 
+                 # Host control changed by REG R/W to Addr 5
+            else:
+                Print('Unpredictable Error! Breaking loop')
+                    
+            
+        _DD.Write(5,0)
+                   
+        
+        if DATA[7] != None:
+            DD.Task_Open()
+                
+
+
     
     '''
     Registers Details:
     0 to 4 :Reserved
-    5: Host control {0->RV as Slave, 1-> RV as Temp Host}
+    5: Host control {0->RV as Slave, 1-> RV as Temp Host, 2 -> Waiting respose from HOST, 3 -> Respose from Host}
     6: Disease Detection
     7: Detection Status {0->Not started, DD-> disease detected, DN-> Not detected, W-> still detecting}
+    8: Robot pos in feild
+    10: CMD {RAW- Raw read/write, REG -> REG R/W, <TASK Name> -> Task (Plant,Spray)}
+    11: Feild Name
+    12: ROW size
+    13: COL size
+    14: Crop
+    16: RAW read/write
+    18: ADDRESS of HOST REG
+    19: DATA to HOST
     '''
 
     '''
     HOST Register Details:
     0 to 4 :Reserved
-    5: Host control {0->RV as Slave, 1-> RV as Temp Host}
+    5: Host control {0->RV as Slave, 1-> RV as Temp Host, 2 -> in Task Mode}
     6: Control Reg {HC->User control, Task-> Task assigned,}
-    7: Task Reg {plant,disease_det,fert_spray}
+    7: Task Reg {None,plant,disease_det,fert_spray}
     8: Field Details
     9: 
     '''
