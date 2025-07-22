@@ -3,6 +3,7 @@ from tkinter import messagebox
 from datetime import datetime
 
 from Field import Get_Field, Delete_Field, Show_Field
+from DEVICE import SetTask
 
 window = tk.Tk()
 window.title("GUI")
@@ -62,6 +63,10 @@ def Field_Del_window():
 def Field_Show_window():
     Show_Field(window)
 
+def FERT_SPRAY ():
+    SetTask('Spray',window)
+    
+
 
 #++++++++++++++++++++++Drop Down Button++++++++++++++++++++++++++++++++++++++
 
@@ -119,7 +124,7 @@ def show_buttons_3():
     clear_previous_buttons()  # Clear the previous buttons
     
     # Create and display 4 new buttons to the right of Main Button 2
-    btn1 = tk.Button(window, text="button" , command=Will_Add)
+    btn1 = tk.Button(window, text="Fertilizer Spray" , command=FERT_SPRAY)
     btn1.place(x=300, y=180)  # Place right of Main Button 2
     popup_buttons.append(btn1)
     

@@ -47,7 +47,11 @@ def Save_Fields(F):
 # Load the list of objects from the file
 def Load_Field():
     with open('Final_testing\Raspberri Pi\GUI\Fields.pkl', 'rb') as f:
-        return pickle.load(f)
+       
+        t = pickle.load(f)
+        print('*****')   
+        return t
+
 
 Field_List = Load_Field()
 
@@ -151,10 +155,7 @@ def Get_Field(window):
 def Field_Close(s,Field_add_window):
     Field_add_window.destroy()
     messagebox.showinfo("Info", s)
-    
-    
-for i in Field_List:
-    print(i.Name)    
+  
 
 def add(n,r,c,crop,Field_add_window):
     try:
