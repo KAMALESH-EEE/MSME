@@ -12,7 +12,7 @@ This file only for HOST module which includes the other module property decleara
 
 
 
-from Task import Spray
+from Task import Spray,Plant
 from machine import Pin
 from dev import *
 from Feild import Fields
@@ -157,6 +157,7 @@ class SM:
     9:GPS-LON
     10:Soil Mosture
     11:
+    15:Functional Block{S:Spray Fertlizer}
     
     '''
 #================ RV operation ===================
@@ -182,7 +183,7 @@ class DD:
             Task = Spray (F_dim)
 
         elif DATA[7] == 'plant':
-            Task = plant (F_dim)
+            Task = Plant (F_dim)
 
         Print('Task Created')
         st = Input('Enter password to start task: ',wait= True)

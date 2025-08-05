@@ -64,3 +64,7 @@ class Spray:
 
     def Result (self):
         pass
+
+class Plant:
+    pass
+    #Will be implemented
