@@ -15,7 +15,7 @@ This file only for HOST module which includes the other module property decleara
 from Task import Spray,Plant
 from machine import Pin
 from dev import *
-from Feild import Fields
+#from Feild import Fields
 import time
 
 #============= Declearing Modules ======================
@@ -82,9 +82,8 @@ def Print(s,end='\n'):
 PBIT=True
 _DS.BITE()
 PBIT = PBIT and _DS.BITE_Status
+
 for dev in MyDevices:
-    Print("PBIT skipped")
-    continue
     dev.BITE()
     print(f"{dev.Name} : {dev.BITE_Status}")
     PBIT = PBIT and dev.BITE_Status
