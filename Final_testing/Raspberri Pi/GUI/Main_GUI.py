@@ -3,7 +3,7 @@ from tkinter import messagebox
 from datetime import datetime
 
 from Field import Get_Field, Delete_Field, Show_Field
-from DEVICE import SetTask
+from DEVICE import SetTask, Main, DATA
 
 window = tk.Tk()
 window.title("GUI")
@@ -31,15 +31,19 @@ def update_time():
     
     time_label.config(text="System Time: "+current_time)  # Update the time label
     date_label.config(text="Date: "+current_date)  # Update the date label
-    
+    GUI_STAUS = 'CONNECTED' if DATA[15] == 'GUI' else 'DISCONNECTED'
+    Sfg = 'green' if GUI_STAUS == 'CONNECTED' else 'red'
+    gui_label.config(text=GUI_STAUS, fg = Sfg) 
     # Call this function again after 1000 ms (1 second)
     window.after(1000, update_time)
 
 time_label = tk.Label(window, font=("Arial", 15), bg=BG, fg="yellow")
 time_label.pack(pady=1)
-
 date_label = tk.Label(window, font=("Arial", 15), bg=BG, fg="yellow")
 date_label.pack(pady=1)
+
+gui_label = tk.Label(window, font=("Arial", 15), bg=BG, fg="red")
+gui_label.pack(pady=1)
 
 # Initial call to update the time
 update_time()
@@ -140,6 +144,11 @@ def show_buttons_3():
     btn4.place(x=300, y=270)
     popup_buttons.append(btn4)
 
+def Connect():
+    clear_previous_buttons()  # Clear the previous buttons
+    Main()
+
+
 
 # Left side menu frame
 side_menu = tk.Frame(window, bg=BG, width=50, height=5)
@@ -153,7 +162,7 @@ bottom_menu.pack(side="bottom", fill="x")
 tk.Button(side_menu, text="BITE", font=("Arial", 14), command=show_buttons_1).pack(pady=2, padx=50)
 tk.Button(side_menu, text="Field", font=("Arial", 14), command=show_buttons_2).pack(pady=2, padx=50)
 tk.Button(side_menu, text="Task", font=("Arial", 14), command=show_buttons_3).pack(pady=2, padx=50)
-tk.Button(side_menu, text="Connect", font=("Arial", 14), command=show_buttons_3).pack(pady=2, padx=50)
+tk.Button(side_menu, text="Connect", font=("Arial", 14), command=Connect).pack(pady=2, padx=50)
 #tk.Button(side_menu, text="Exit", font=("Arial", 14), command=window.quit).pack(pady=10, padx=20)
 
 # Add buttons to the bottom menu

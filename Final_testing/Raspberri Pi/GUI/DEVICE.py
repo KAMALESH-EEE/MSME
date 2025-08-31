@@ -11,20 +11,19 @@ and common pheripheral setup
 '''
 
 
-import serial
 import time as utime
 from time import sleep
 from Field import Field_List,Field_Close
 
-
-
+import serial
 
 DATA = [0 for i in range(20)] # Data Regiters
 
 class DEV:
-    com = None
-    #com = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
+
+    #com = serial.Serial("/dev/serial0", baudrate=115200, timeout=1)
     #com.flush()
+    com = None
     SlaveRegFlag = True
     Slave_Value = [[0,0,0,0],[1,0,0,0],[0,1,0,0],[1,1,0,0]] #
     SPin = [] #Slave Pin declearation added @ Rutime
@@ -84,7 +83,7 @@ class DEV:
 
 
     def Receive(self): # UART RX Decode
-        if DEV.com.any():
+        if DEV.com.in_waiting > 0:
             raw_data=str(DEV.com.read())
             #raw_data="b'"+input()+"'"
             print('\nRAW:'+raw_data)
@@ -225,10 +224,6 @@ def DO_TASK(T,F,window):
        Field_Close("Error",Field_add_window)
 
 
-
-
-
-
 #==========================================
 
 
@@ -243,6 +238,7 @@ HOST = DEV(0,'HOST')
 
 DATA[0] = 'Disease Detector'
 DATA[1] = 1
+DATA[17] = 'IN'
 
 #++++++++++++++++++++++++++++++++++++++++++
 
@@ -259,9 +255,11 @@ DATA[1] = 1
     12: ROW size
     13: COL size
     14: Crop
+    15: RV Status {0->Not running, IN-> Ideal, GUI -> GUI, TK -> Task}
     16: RAW read/write
     18: ADDRESS of HOST REG
     19: DATA to HOST
+    
 '''
 
 '''
@@ -274,7 +272,21 @@ DATA[1] = 1
     9: 
 '''
 def Check():
-    pass
+    HOST.Receive()
+
+    if DATA[6] > 0:
+        DATA[6]
+        for i in range(DATA[6]):
+            HOST.Receive()
+            res = False
+            #res = res or Detect()
+        if res:
+            DATA[7] = 'DD'
+        else:
+            DATA[7] = 'DN'
+        DATA[6] = 0
+
+
 
 #=========DD Connect==================
 
@@ -310,6 +322,46 @@ def USER_DD(T,F):
             Check()
             return False
 
+#====================================#
 
+#==== Disease Detector=============#
+'''
+from ultralytics import YOLO
+import cv2
 
+model = YOLO("Final_testing/Raspberri Pi/Main/best.pt")  
 
+def Detect():
+    Det_Flag = False
+    DATA[7] = 'W'
+    image = cv2.imread('')
+
+    results = model(image)
+    boxes = results[0].boxes.xyxy.cpu().numpy()  # xyxy format (x_min, y_min, x_max, y_max)
+    confidences = results[0].boxes.conf.cpu().numpy()  # Confidence scores
+    class_ids = results[0].boxes.cls.cpu().numpy()  # Class labels
+
+    class_names = model.names
+    for box, confidence, class_id in zip(boxes, confidences, class_ids):
+        if confidence > 0.45:
+            Det_Flag = True
+            x_min, y_min, x_max, y_max = map(int, box)
+            label = f"{class_names[int(class_id)]}: {(confidence*100):.1f}%" 
+            cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+            cv2.putText(image, label, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    cv2.imshow("YOLOv8 Detection", image)
+    return Det_Flag
+'''
+def Main(): #should be invoke after clicking Connect in GUI
+    import time
+    time.sleep(5)
+    DATA[15] = 'GUI'
+    return True
+    HOST.com.write(b'UP\n')
+
+    while True:
+        HOST.Read()
+        if DATA[15] == 'GUI':
+            break
+    while True:
+        Check()

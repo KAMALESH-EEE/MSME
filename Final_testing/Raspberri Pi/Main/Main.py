@@ -24,6 +24,7 @@ def Detect(a):
 
 folder_path = 'Final_testing/Raspberri Pi/Main/Images'
 for filename in os.listdir(folder_path):
+    break
     img_path = os.path.join(folder_path, filename)
     if filename.endswith('.jpg') or filename.endswith('.png'):
         Detect(img_path)
