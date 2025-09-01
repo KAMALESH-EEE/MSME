@@ -1,5 +1,8 @@
-from DEVICE import *
+
+from machine import UART
+import time
+
+from DEVICES import *
 from utime import sleep
-while True:
-    Automation.MoveNext()
-    utime.sleep(2)
+input()
+DD.USER_DD()

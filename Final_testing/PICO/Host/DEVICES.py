@@ -16,8 +16,8 @@ from Task import Spray,Plant
 from machine import Pin
 from dev import *
 #from Feild import Fields
+from time import sleep
 import time
-
 #============= Declearing Modules ======================
 
 print("Device Declearing ....")
@@ -206,6 +206,15 @@ class DD:
 
 
     def USER_DD():
+        while True:
+            if _DD.Read(15) == 'wait':
+                _DD.Write(15,'GUI')
+                
+            if _DD.Read(5) == 2:
+                break
+            sleep(0.5)
+            
+            
         DATA[5] = 1
         _iC,_jC = 0,0
         

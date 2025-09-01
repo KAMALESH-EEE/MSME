@@ -50,9 +50,11 @@ class DEV:
         if self.Slave:
             DEV.S_Sel(self.ID -1)
             utime.sleep(0.01)
+            if self.ID == 1:
+                data = data+'\n'
             DEV.com.write(data)
             print(data, "=>sent")
-            utime.sleep(0.1)
+            utime.sleep(0.5)
             if R:
                 utime.sleep(0.25)
                 i=5
@@ -69,6 +71,7 @@ class DEV:
                     i-=1
                 print(f"\nReceived Data: {data}")
                 DEV.S_Sel(0)
+                utime.sleep(0.1)
                 return data 
             else:
                 DEV.S_Sel(0)
