@@ -291,7 +291,7 @@ def Check():
 #=========DD Connect==================
 
 def USER_DD(T,F):
-
+    print('USER_DD invoke')
     DATA[5] = 2
     while True:
         HOST.Receive()
@@ -310,6 +310,8 @@ def USER_DD(T,F):
     DATA[14] = F.Crop
     DATA[10]  = T
     DATA[5]  = 2
+
+    print('Data Writtern in REG')
 
     while True:
         HOST.Receive()

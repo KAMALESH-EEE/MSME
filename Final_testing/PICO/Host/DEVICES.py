@@ -15,7 +15,7 @@ This file only for HOST module which includes the other module property decleara
 from Task import Spray,Plant
 from machine import Pin
 from dev import *
-#from Feild import Fields
+from Feild import Fields
 from time import sleep
 import time
 #============= Declearing Modules ======================
@@ -23,7 +23,7 @@ import time
 print("Device Declearing ....")
 _DD = DEV(1,"Disease Detector",True)
 _DS = DEV(2,"Driving System",True)
-_SM = DEV(3,"Sensor Module",True)
+#_SM = DEV(3,"Sensor Module",True)
 
 HC = UART(1, tx =Pin(4),rx = Pin(5), baudrate=9600)
 
@@ -35,7 +35,7 @@ D2 = Pin(7,Pin.OUT) #Waiting for User Input
 D3 = Pin(8,Pin.OUT) #Waiting for Module Response
 D4 = Pin(9,Pin.OUT) #Error
 
-MyDevices = [_DD,_DS,_SM]
+MyDevices = [_DD,_DS]
 print("All Devices are Decleared \n PBIT:")
 led.on()
 
@@ -80,8 +80,13 @@ def Print(s,end='\n'):
 
 #================= PBITE =========================
 PBIT=True
-_DS.BITE()
-PBIT = PBIT and _DS.BITE_Status
+
+Print('Waiting Processor to boot!')
+
+while True:
+    if _DD.Read(15) == 0 or _DD.Read(15) == 'wait':
+        break
+
 
 for dev in MyDevices:
     dev.BITE()
@@ -103,6 +108,7 @@ class DS:
     6:Speed
     7:Input angle
     8:Servo Last set angle
+    10: Spray {time to spray (seconds)}
       
     '''
     ListSpeed=[6553, 13106, 19659, 26212, 32765, 39318, 45871, 52424, 58977, 65534]
@@ -142,6 +148,9 @@ class DS:
     def speed_down():
         a=DS.ListSpeed.index(_DS.Read(6))
         DS.set_speed(a-1)
+
+    def HW_Spray():     # For Now Spray operation done by DS, will change to FM
+        _DS.Write(10,2)
 
 #================ SM operation ===================
 class SM:
@@ -220,12 +229,12 @@ class DD:
         
         while DATA[5] == 1:
             _DD.Write(5,1)
-            _jC+= 1
+            # _jC+= 1
 
-            if _jC == 6:
-                print('DD as Master limit reached')
+            # if _jC == 6:
+            #     print('DD as Master limit reached')
 
-            while _DD.Read(5) ==1:
+            while _DD.Read(5) == 1:
                 sleep(0.2)
                 if _iC == 50:
                     Print('Time Out from DD response')
@@ -257,12 +266,14 @@ class DD:
                  # Host control changed by REG R/W to Addr 5
             else:
                 Print('Unpredictable Error! Breaking loop')
+                break
                     
-            
+
         _DD.Write(5,0)
-                   
+        
         
         if DATA[7] != None:
+            _DD.Write(15,'HC')
             DD.Task_Open()
                 
 
@@ -363,6 +374,7 @@ class Automation:
 #=================For testing =========================
     
 print(_DS.Read(0))
+print(_DD.Read(0))
     
     
     

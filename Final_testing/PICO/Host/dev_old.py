@@ -22,7 +22,6 @@ class DEV:
     SlaveRegFlag = True
     Slave_Value = [[0,0,0,0],[1,0,0,0],[0,1,0,0],[1,1,0,0]] #
     SPin = [] #Slave Pin declearation added @ Rutime
-    FIFO = []
 
     def __init__(self,ID,Name, Slave = False):
         self.ID = int(ID)
@@ -40,18 +39,20 @@ class DEV:
         return (f'Device Name: {self.Name}\nID:{self.ID}')
 
     def Write(self,addr,data): #Fuction for Device's Reg write from Host
-        cmd = str(addr)+'|w|'+str(DEV.Encode(data))+']['
+        cmd = str(addr)+"'w'"+str(DEV.Encode(data))
         self.Send(cmd)
 
     def Read(self,addr): #Fuction for Device's Reg read to Host
-        cmd = str(addr)+"|r]["
+        cmd = str(addr)+"'r"
         return self.Send(cmd,R=True)
         
     def Send(self,data,R=False): #UART Read / Write defintion
         if self.Slave:
             DEV.S_Sel(self.ID -1)
             utime.sleep(0.01)
-            DEV.com.write(data.encode())
+            if self.ID == 1:
+                data = data+'\n'
+            DEV.com.write(data)
             print(data, "=>sent")
             utime.sleep(0.5)
             if R:
@@ -68,37 +69,35 @@ class DEV:
                     utime.sleep(0.5)
                     data = self.Receive()
                     i-=1
-                print(f"Received Data: {data}")
+                print(f"\nReceived Data: {data}")
                 DEV.S_Sel(0)
                 utime.sleep(0.1)
                 return data 
             else:
                 DEV.S_Sel(0)
         else:
-            DEV.com.write(data.encode())
+            DEV.com.write(data)
             print(f"Data Sent = {data}")
 
 
     def Receive(self): # UART RX Decode
         if DEV.com.any():
-            raw_data=DEV.com.read().decode()
+            raw_data=str(DEV.com.read())
+            #raw_data="b'"+input()+"'"
+            print('\nRAW:'+raw_data)
 
-            print('RAW:'+raw_data)
+            if 'b"' in raw_data:
+                data=raw_data.split('"')[1].split("'")
 
-            data = raw_data.split('][')
-            data.pop()
-            for i in data:
-                DEV.FIFO.append(i)
-            del(data)
+            else:
+                data = raw_data[2:-1].split("'")
 
-        for cmd in DEV.FIFO:
 
             if self.Slave:              #Master read raw data
-                return DEV.Decode(cmd)
-            else:
-                data =  cmd.split('|')                         #Slave decode and response.
+                return DEV.Decode(data[0])
+            else:                           #Slave decode and response.
                 if data[1] == 'r':          #read operation
-                    DEV.com.write(DEV.reg_getdata(int(data[0])).encode())
+                    DEV.com.write(DEV.reg_getdata(int(data[0])))
                     print("Reg Data sent")
                 elif data[1] == 'w':        #write operation
                     DEV.reg_putdata(int(data[0]),data[2])
@@ -143,19 +142,16 @@ class DEV:
             dt = 'd'
         elif type(data) == float:
             dt = 'f'
-        return str(data)+'%'+dt
+        return str(data)+'_'+dt
     
     def Decode (data):          #Distruct the Data from Type
-        t=data.split('%')
+        t=data.split('_')
         dt=t[1]
         if dt == 'd':
             return int(t[0])
         elif dt == 'f':
             return float(t[0])
         return t[0]
-    
-
-
 
 
 
