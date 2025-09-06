@@ -21,12 +21,12 @@ DATA = [0 for i in range(20)] # Data Regiters
 
 class DEV:
 
-    #com = serial.Serial("/dev/serial0", baudrate=115200, timeout=1)
-    #com.flush()
-    com = None
+    com = serial.Serial("/dev/serial0", baudrate=115200, timeout=1)
+    com.flush()
     SlaveRegFlag = True
     Slave_Value = [[0,0,0,0],[1,0,0,0],[0,1,0,0],[1,1,0,0]] #
     SPin = [] #Slave Pin declearation added @ Rutime
+    FIFO = []
 
     def __init__(self,ID,Name, Slave = False):
         self.ID = int(ID)
@@ -44,20 +44,20 @@ class DEV:
         return (f'Device Name: {self.Name}\nID:{self.ID}')
 
     def Write(self,addr,data): #Fuction for Device's Reg write from Host
-        cmd = str(addr)+"'w'"+str(DEV.Encode(data))
+        cmd = str(addr)+'|w|'+str(DEV.Encode(data))+']['
         self.Send(cmd)
 
     def Read(self,addr): #Fuction for Device's Reg read to Host
-        cmd = str(addr)+"'r"
+        cmd = str(addr)+"|r]["
         return self.Send(cmd,R=True)
         
     def Send(self,data,R=False): #UART Read / Write defintion
         if self.Slave:
             DEV.S_Sel(self.ID -1)
             utime.sleep(0.01)
-            DEV.com.write(data)
+            DEV.com.write(data.encode())
             print(data, "=>sent")
-            utime.sleep(0.1)
+            utime.sleep(0.5)
             if R:
                 utime.sleep(0.25)
                 i=5
@@ -72,40 +72,45 @@ class DEV:
                     utime.sleep(0.5)
                     data = self.Receive()
                     i-=1
-                print(f"\nReceived Data: {data}")
+                print(f"Received Data: {data}")
                 DEV.S_Sel(0)
+                utime.sleep(0.1)
                 return data 
             else:
                 DEV.S_Sel(0)
         else:
-            DEV.com.write(data)
+            DEV.com.write(data.encode())
             print(f"Data Sent = {data}")
 
 
     def Receive(self): # UART RX Decode
         if DEV.com.in_waiting > 0:
-            raw_data=str(DEV.com.read())
-            #raw_data="b'"+input()+"'"
-            print('\nRAW:'+raw_data)
+            raw_data=DEV.com.readline().decode()
 
-            if 'b"' in raw_data:
-                data=raw_data.split('"')[1].split("'")
+            print('RAW:'+raw_data)
 
-            else:
-                data = raw_data[2:-1].split("'")
+            data = raw_data.split('][')
+            data.pop()
+            for i in data:
+                DEV.FIFO.append(i)
+            del(data)
 
+        for cmd in DEV.FIFO:
 
             if self.Slave:              #Master read raw data
-                return DEV.Decode(data[0])
-            else:                           #Slave decode and response.
+                return DEV.Decode(cmd)
+            else:
+                data =  cmd.split('|')                         #Slave decode and response.
                 if data[1] == 'r':          #read operation
-                    DEV.com.write(DEV.reg_getdata(int(data[0])))
-                    print("Reg Data sent")
+                    te = DEV.reg_getdata(int(data[0])).encode()
+                    DEV.com.write(te)
+                    print("Reg Data sent", te)
                 elif data[1] == 'w':        #write operation
                     DEV.reg_putdata(int(data[0]),data[2])
                 else:
                     print("MEM R/W error occures")    
-                return True            
+            DEV.FIFO = []
+            return True            
         return False
     
     def BITE(self): # BITE() 
@@ -126,7 +131,7 @@ class DEV:
  #=========================================================================
  
     def SetSlave():
-        #DEV.SPin = [Pin(18,Pin.OUT),Pin(19,Pin.OUT),Pin(20,Pin.OUT),Pin(21,Pin.OUT)]
+        DEV.SPin = [Pin(18,Pin.OUT),Pin(19,Pin.OUT),Pin(20,Pin.OUT),Pin(21,Pin.OUT)]
         for S_dev in DEV.SPin:
             S_dev.off()
             DEV.SlaveRegFlag = False
@@ -144,17 +149,17 @@ class DEV:
             dt = 'd'
         elif type(data) == float:
             dt = 'f'
-        return str(data)+'_'+dt
+        return str(data)+'%'+dt
     
     def Decode (data):          #Distruct the Data from Type
-        t=data.split('_')
+        t=data.split('%')
         dt=t[1]
         if dt == 'd':
             return int(t[0])
         elif dt == 'f':
             return float(t[0])
         return t[0]
-
+    
 #=============***********=========================
 #=================GUI==============================
 import tkinter as tk
@@ -273,9 +278,9 @@ DATA[17] = 'IN'
 '''
 def Check():
     HOST.Receive()
-
+    
     if DATA[6] > 0:
-        DATA[6]
+        
         for i in range(DATA[6]):
             HOST.Receive()
             res = False
@@ -291,7 +296,7 @@ def Check():
 #=========DD Connect==================
 
 def USER_DD(T,F):
-    print('USER_DD invoke')
+
     DATA[5] = 2
     while True:
         HOST.Receive()
@@ -310,8 +315,6 @@ def USER_DD(T,F):
     DATA[14] = F.Crop
     DATA[10]  = T
     DATA[5]  = 2
-
-    print('Data Writtern in REG')
 
     while True:
         HOST.Receive()
@@ -355,15 +358,10 @@ def Detect():
     return Det_Flag
 '''
 def Main(): #should be invoke after clicking Connect in GUI
-    import time
-    time.sleep(5)
-    DATA[15] = 'GUI'
-    return True
-    HOST.com.write(b'UP\n')
-
+    HOST.Receive()
+    DATA[15] = 'wait'
+    HOST.com.flush()
     while True:
-        HOST.Read()
+        HOST.Receive()
         if DATA[15] == 'GUI':
-            break
-    while True:
-        Check()
+            return
