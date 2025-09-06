@@ -41,12 +41,12 @@ class Field:
 
 
 def Save_Fields(F):
-    with open('Final_testing\Raspberri Pi\GUI\Fields.pkl', 'wb') as f:
+    with open('Fields.pkl', 'wb') as f:
         pickle.dump(F, f)
 
 # Load the list of objects from the file
 def Load_Field():
-    with open('Final_testing\Raspberri Pi\GUI\Fields.pkl', 'rb') as f:
+    with open('Fields.pkl', 'rb') as f:
        
         t = pickle.load(f)
         print('*****')   
@@ -225,3 +225,4 @@ def Show(F):
     except:
         print("Error")
         Field_Close("Error",Field_add_window)
+
