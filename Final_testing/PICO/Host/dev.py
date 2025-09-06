@@ -68,7 +68,7 @@ class DEV:
                     utime.sleep(0.5)
                     data = self.Receive()
                     i-=1
-                print(f"Received Data: {data}")
+                print(f"\nReceived Data: {data}")
                 DEV.S_Sel(0)
                 utime.sleep(0.1)
                 return data 
@@ -81,19 +81,22 @@ class DEV:
 
     def Receive(self): # UART RX Decode
         if DEV.com.any():
-            raw_data=DEV.com.read().decode()
+            raw_data=(DEV.com.read())
+            raw_data=raw_data.decode()
 
             print('RAW:'+raw_data)
 
             data = raw_data.split('][')
-            data.pop()
+            
             for i in data:
-                DEV.FIFO.append(i)
+                if '%' in i or '|' in i:
+                    DEV.FIFO.append(i)
             del(data)
 
         for cmd in DEV.FIFO:
 
             if self.Slave:              #Master read raw data
+                DEV.FIFO = []
                 return DEV.Decode(cmd)
             else:
                 data =  cmd.split('|')                         #Slave decode and response.
@@ -103,8 +106,10 @@ class DEV:
                 elif data[1] == 'w':        #write operation
                     DEV.reg_putdata(int(data[0]),data[2])
                 else:
-                    print("MEM R/W error occures")    
-                return True            
+                    print("MEM R/W error occures")
+                
+            DEV.FIFO = []
+            return True            
         return False
     
     def BITE(self): # BITE() 
