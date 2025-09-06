@@ -3,7 +3,7 @@ from tkinter import messagebox
 from datetime import datetime
 
 from Field import Get_Field, Delete_Field, Show_Field
-from DEVICE import SetTask, Main, DATA
+from DEVICE import SetTask, Main, DATA, Check
 
 window = tk.Tk()
 window.title("GUI")
@@ -33,7 +33,8 @@ def update_time():
     date_label.config(text="Date: "+current_date)  # Update the date label
     GUI_STAUS = 'CONNECTED' if DATA[15] == 'GUI' else 'DISCONNECTED'
     Sfg = 'green' if GUI_STAUS == 'CONNECTED' else 'red'
-    gui_label.config(text=GUI_STAUS, fg = Sfg) 
+    gui_label.config(text=GUI_STAUS, fg = Sfg)
+    Check()
     # Call this function again after 1000 ms (1 second)
     window.after(1000, update_time)
 
@@ -174,3 +175,4 @@ tk.Button(bottom_menu, text="Exit", font=("Arial", 14), command=window.quit).pac
 
 # Run the application
 window.mainloop()
+
