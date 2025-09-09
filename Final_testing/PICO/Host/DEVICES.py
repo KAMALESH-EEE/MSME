@@ -15,7 +15,7 @@ This file only for HOST module which includes the other module property decleara
 from Task import Spray,Plant,Fun
 from machine import Pin
 from dev import *
-from Feild import Fields
+from Feild import Fields, F_Fun
 
 from time import sleep
 import time
@@ -80,7 +80,9 @@ def Print(s,end='\n'):
     HC.write(str(s)+end)
 
 
+Fun(Print,Input)
 
+F_Fun(Print,Input)
 #================= PBITE =========================
 def do_BITE():
     BITE=True
@@ -92,12 +94,7 @@ def do_BITE():
     Print(f'BITE result {"PASS" if BITE else "FAIL"}')
     led.off()
     
-Print('Waiting Processor to boot!')
 
-while True:
-    if _DD.Read(15) == 0 or _DD.Read(15) == 'wait':
-        break
-do_BITE()
 
 
 #================ DS operation ===================
@@ -382,17 +379,20 @@ class User:
             
     def raw_read():
         if HC.any():
-            t=str(HC.read()).split("'")
-            return t[1]    
-        else:
-            return ''
+            t=HC.read()
+            return t.decode()
+        return ''
 
-   def HMI():
+    def HMI():
         if HC.any():
             cm = (HC.read()).decode()
 
-            if cm == 'rst':
+            if cm == 'sysrst':
                 User.CloseAll()
+                import machine
+                machine.reset()
+                
+            if cm == 'reboot':
                 import machine
                 machine.reset()
 
@@ -517,12 +517,22 @@ class Automation:
     def MoveLeft():
         pass
 
+    
 
+Print('Waiting Processor to boot!')
+
+while False:
+    if _DD.Read(15) == 'wait':
+        break
+    if User.raw_read() == 'MARS':
+        while True:
+            User.HMI()
+    if User.raw_read() == 'con':
+        break
+            
+do_BITE()
 
 #=================For testing =========================
-    
-Fun(Print,Input)
-    
     
     
     

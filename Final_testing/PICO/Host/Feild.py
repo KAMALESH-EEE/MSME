@@ -1,5 +1,13 @@
 import ujson
-from DEVICES import Input,Print
+
+Print = None
+Input = None
+
+
+def F_Fun(p,i):
+    global Print, Input
+    Print = p
+    Input = i
 
 class Fields:
     def __init__(self, name, row, col,no_plant, crop):
