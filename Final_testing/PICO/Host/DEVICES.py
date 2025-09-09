@@ -12,10 +12,11 @@ This file only for HOST module which includes the other module property decleara
 
 
 
-from Task import Spray,Plant
+from Task import Spray,Plant,Fun
 from machine import Pin
 from dev import *
 from Feild import Fields
+
 from time import sleep
 import time
 #============= Declearing Modules ======================
@@ -35,7 +36,7 @@ D2 = Pin(7,Pin.OUT) #Waiting for User Input
 D3 = Pin(8,Pin.OUT) #Waiting for Module Response
 D4 = Pin(9,Pin.OUT) #Error
 
-MyDevices = [_DD,_DS,]
+MyDevices = [_DD,_DS]
 print("All Devices are Decleared \n PBIT:")
 led.on()
 
@@ -47,12 +48,14 @@ DATA = [0 for i in range(20)]
 DATA[0] = 'Host System'
 DATA[1] = 0
 
+Fields = None
+
 #================ HC operation ===================
 
 def Input(s,wait=False):
     if HC.any():
         Print(str(HC.read())+" Not Used") 
-    HC.write(s)
+    HC.write(s+'\n')
     if wait:
         while not (HC.any()):
             pass
@@ -66,7 +69,7 @@ def Input(s,wait=False):
                 return t[1]
             i=i-1
             if (i%20 == 0):
-                HC.write('.')
+                HC.write('.\n\b')
             utime.sleep(0.05)
         HC.write('\n No input Response \n')
         return None
@@ -79,7 +82,6 @@ def Print(s,end='\n'):
 
 
 #================= PBITE =========================
-
 def do_BITE():
     BITE=True
     for dev in MyDevices:
@@ -89,7 +91,7 @@ def do_BITE():
 
     Print(f'BITE result {"PASS" if BITE else "FAIL"}')
     led.off()
-
+    
 Print('Waiting Processor to boot!')
 
 while True:
@@ -112,10 +114,8 @@ class DS:
         15: Spray Speed (%)
         16: Spray time (ms)
         17: Spray Flag
-
-        
+ 
     '''
-
     ListSpeed=[6553, 13106, 19659, 26212, 32765, 39318, 45871, 52424, 58977, 65534]
     
     
@@ -153,7 +153,7 @@ class DS:
     def speed_down():
         a=DS.ListSpeed.index(_DS.Read(6))
         DS.set_speed(a-1)
-
+        
     def HW_Spray(sp=75,ti=1000):     # For Now Spray operation done by DS, will change to FM
         _DS.Write(15,sp)
         sleep(0.1)
@@ -161,6 +161,7 @@ class DS:
         sleep(0.1)
         _DS.Write(17,1)
         sleep(0.1)
+
 
 #================ SM operation ===================
 class SM:
@@ -227,7 +228,9 @@ class DD:
     def USER_DD():
         while True:
             if _DD.Read(15) == 'wait':
+                sleep(0.5)
                 _DD.Write(15,'GUI')
+                sleep(0.5)
                 
             if _DD.Read(5) == 2:
                 break
@@ -238,49 +241,66 @@ class DD:
         _iC,_jC = 0,0
         
         while DATA[5] == 1:
+            
             _DD.Write(5,1)
-            # _jC+= 1
+            sleep(0.5)
+            _jC+= 1
 
-            # if _jC == 6:
-            #     print('DD as Master limit reached')
+            if _jC == 6:
+                print('DD as Master limit reached')
 
-            while _DD.Read(5) == 1:
-                sleep(0.2)
+            while _DD.Read(5) ==1:
+                sleep(0.5)
                 if _iC == 50:
                     Print('Time Out from DD response')
                     break
                 _iC+=1
             
             if _DD.Read(5) == 2:
+                sleep(0.5)
                 cmd = _DD.Read(10)
+                sleep(0.5)
 
                 if 'REG' == cmd:
                     addr = _DD.Read(18)
+                    sleep(0.5)
                     Data = _DD.Read(19)
+                    sleep(0.5)
                     if addr > 4 and addr < 20:
                         DATA[addr] = Data
                     else :
                         Print('Address from DD cant accessable ')
                     _DD.Write(5,1)
+                    sleep(0.5)
                 
                 elif cmd.lower()  == 'spray':
+                    Print('Spray Task is loading..')
                     f_Name = _DD.Read(11)
+                    sleep(0.5)
                     f_Row  = _DD.Read(12)
+                    sleep(0.5)
                     f_Col  = _DD.Read(13)
+                    sleep(0.5)
                     f_Crop = _DD.Read(14)
+                    sleep(0.5)
 
                     DD.tk_Feild = Fields(f_Name,f_Row,f_Col,f_Row*f_Col,f_Crop)
+                    Print(f'Task Feild Got:{DD.tk_Feild.name}')
                     DATA[7] = 'spray'                                   
                 _DD.Write(10,0)
+                sleep(0.5)
+                _DD.Write(5,1)
+                sleep(2)
+                break
                  
                  # Host control changed by REG R/W to Addr 5
             else:
                 Print('Unpredictable Error! Breaking loop')
-                break
                     
-
-        _DD.Write(5,0)
         
+        _DD.Write(5,0)
+        sleep(0.5)
+                   
         
         if DATA[7] != None:
             _DD.Write(15,'HC')
@@ -320,6 +340,7 @@ class DD:
         _DD.Write(6,1)
         utime.sleep(4)
         result=_DD.Read(7)
+        sleep(0.5)
 
         while result == 'W':
             Print('Still detecting: <-')
@@ -329,6 +350,7 @@ class DD:
             if 'Q' in Usr_comand:
                 return 'Quit'
             result=_DD.Read(7)
+            sleep(0.5)
 
 
         if result == 0:
@@ -343,11 +365,9 @@ class DD:
                 else:
                     Print('Invalid Command')
         
-            
         elif result == 'DD' :
             DATA[9] = _DD.Read(6)
             return True
-        
         else:
             return False
         
@@ -355,18 +375,19 @@ class DD:
 #================ HC operation ===================
 
 class User:
+    
     def CloseAll():
         for de in MyDevices :
             de.Write(19,'RESET')
-    
+            
     def raw_read():
         if HC.any():
             t=str(HC.read()).split("'")
             return t[1]    
         else:
             return ''
-        
-    def HMI():
+
+   def HMI():
         if HC.any():
             cm = (HC.read()).decode()
 
@@ -479,6 +500,9 @@ class F_module:     #Functional Module
         sleep(0.1)
         _DS.Write(17,1)
         sleep(0.1)
+     #Functional Module
+    def Fert_spray():
+        pass
 
 class Automation:
 
@@ -497,8 +521,7 @@ class Automation:
 
 #=================For testing =========================
     
-print(_DS.Read(0))
-print(_DD.Read(0))
+Fun(Print,Input)
     
     
     
