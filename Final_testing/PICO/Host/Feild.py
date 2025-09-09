@@ -78,4 +78,4 @@ def Mode():
         elif op==0:
             return   
     
-fields=Read(Fields)
+#fields=Read(Fields)
