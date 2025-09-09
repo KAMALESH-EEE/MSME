@@ -1,4 +1,5 @@
 from DEVICES import *
+import utime
 
 while True:
     
@@ -7,14 +8,10 @@ while True:
         if not (DATA[8] == DATA[7]):
             Steering(FSD)
         CMD[DATA[5]](DATA[6])
-        sleep(0.5)
+        utime.sleep(0.5)
+        Fun_Spray()
         LED.off()
 
     else:
         LED.off()
     utime.sleep(0.1)
-
-
-    
-
-    

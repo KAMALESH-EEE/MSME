@@ -34,7 +34,7 @@ class Spray:
                 elif result == True:
                     Print("Disease Detected!")
                     if self.Spray_flag == True:
-                        F_module.Fert_spray()
+                        F_module.HW_Spray() 
                         self.F_sprayed += 1
                         Print("\t Fertilizer Sprayed!")
                     else:

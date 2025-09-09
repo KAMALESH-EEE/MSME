@@ -102,15 +102,19 @@ led.off()
 class DS:
 
     '''
-    Registers Details:
-    0 to 4 :Reserved
-    5:Moving Operation {0:stop , 1:forward, 2: Reversed, 3:turn Right, 4:turn Left}
-    6:Speed
-    7:Input angle
-    8:Servo Last set angle
-    10: Spray {time to spray (seconds)}
-      
+        Registers Details:
+        0 to 4 :Reserved
+        5:Moving Operation {0:stop , 1:forward, 2: Reversed, 3:Turning}
+        6:Speed
+        7:Input angle
+        8:Servo Last set angle
+        15: Spray Speed (%)
+        16: Spray time (ms)
+        17: Spray Flag
+
+        
     '''
+
     ListSpeed=[6553, 13106, 19659, 26212, 32765, 39318, 45871, 52424, 58977, 65534]
     
     
@@ -150,7 +154,12 @@ class DS:
         DS.set_speed(a-1)
 
     def HW_Spray():     # For Now Spray operation done by DS, will change to FM
-        _DS.Write(10,2)
+        _DS.Write(15,75)
+        sleep(0.1)
+        _DS.Write(16,1000)
+        sleep(0.1)
+        _DS.Write(17,1)
+        sleep(0.1)
 
 #================ SM operation ===================
 class SM:
@@ -201,7 +210,7 @@ class DD:
         
         Print('SPRAYING IN PROGRESS')
         Task.Start()
-
+        
 
         DD.Task_Close()
 
@@ -353,8 +362,13 @@ class User:
 
 
 class F_module:     #Functional Module
-    def Fert_spray():
-        pass
+    def HW_Spray():     # For Now Spray operation done by DS, will change to FM
+        _DS.Write(15,75)
+        sleep(0.1)
+        _DS.Write(16,1000)
+        sleep(0.1)
+        _DS.Write(17,1)
+        sleep(0.1)
 
 class Automation:
 

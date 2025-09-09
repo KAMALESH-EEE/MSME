@@ -45,14 +45,14 @@ RRB = PWM(Pin(12), freq=100)
 FLD = PWM(Pin(17), freq=50)
 FRD = PWM(Pin(16), freq=50)
 RLD = PWM(Pin(7), freq=50)
-RRD = PWM(Pin(8), freq=50)
+RRD = PWM(Pin(9), freq=50) #Actual Pin is 8 will bbe changed 
 
 
 #======== Servo Control Function ========
 
 def servo(angle):
     angle = angle + 90
-    if angle>=0 and angle<=180:
+    if angle >=0 and angle <=180:
         return int(1900+(angle/180)*6100)
     return servo(90) # Streeing Disabled 
 
@@ -67,6 +67,9 @@ Rmotors = [FRF,FRB,RRF,RRB]
 FSD = [FLD,FRD]
 RSD = [RLD,RRD]
 
+#=================================
+
+SPR = PWM(Pin(8), freq=50)
 
 #======== Basic Functions =========
 
@@ -77,6 +80,10 @@ RSD = [RLD,RRD]
     6:Speed
     7:Input angle
     8:Servo Last set angle
+    15: Spray Speed (%)
+    16: Spray time (ms)
+    17: Spray Flag
+
       
 '''
 
@@ -141,7 +148,14 @@ def Steering():
     stop()
     DATA[5] = 0 #clearing Turning flag
 
+#=========== Functioonal Moduels ======================
 
+def Fun_Spray():
+    if DATA[17] == 1:
+        DATA[17] = 0
+        SPR.duty_u16((DATA[15]/100)*(2**16))
+        utime.sleep(DATA[16]/1000)
+        SPR.duty_u16(0)
 
 #=======================================
 
@@ -156,12 +170,13 @@ def OPERATION():
         reverse(DATA[6])
     elif temp_OP == 3:
         Steering()
+    Fun_Spray()
 
 
 
 #++++++++++++++++++++++++++++++++++++
 
-CMD =[stop,forward,reverse,Steering]
+CMD =[stop,forward,reverse,Steering, Fun_Spray]
 
 
 
