@@ -11,7 +11,7 @@ and common pheripheral setup
 
 
 
-from machine import Pin, UART
+from machine import Pin, UART, reset
 import utime
 
 
@@ -86,6 +86,13 @@ class DEV:
 
             print('RAW:'+raw_data)
 
+            if 'RESET' in raw_data:
+                print(f'Reset Command Recived')
+                print(f'Module Resetting')
+                DEV.com.write(DEV.Encode('Module Resetting').encode())
+                utime.sleep(0.5)
+                reset()
+
             data = raw_data.split('][')
             
             for i in data:
@@ -158,10 +165,3 @@ class DEV:
         elif dt == 'f':
             return float(t[0])
         return t[0]
-    
-
-
-
-
-
-
