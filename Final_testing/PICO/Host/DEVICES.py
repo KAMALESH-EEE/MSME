@@ -35,7 +35,7 @@ D2 = Pin(7,Pin.OUT) #Waiting for User Input
 D3 = Pin(8,Pin.OUT) #Waiting for Module Response
 D4 = Pin(9,Pin.OUT) #Error
 
-MyDevices = [_DD,_DS]
+MyDevices = [_DD,_DS,]
 print("All Devices are Decleared \n PBIT:")
 led.on()
 
@@ -56,7 +56,7 @@ def Input(s,wait=False):
     if wait:
         while not (HC.any()):
             pass
-        t=str(HC.read()).split("'")
+        t=str(HC.read()).decode()
         return t[1]
     else:
         i=100
@@ -79,22 +79,23 @@ def Print(s,end='\n'):
 
 
 #================= PBITE =========================
-PBIT=True
+
+def do_BITE():
+    BITE=True
+    for dev in MyDevices:
+        dev.BITE()
+        print(f"{dev.Name} : {dev.BITE_Status}")
+        BITE = BITE and dev.BITE_Status
+
+    Print(f'BITE result {"PASS" if BITE else "FAIL"}')
+    led.off()
 
 Print('Waiting Processor to boot!')
 
 while True:
     if _DD.Read(15) == 0 or _DD.Read(15) == 'wait':
         break
-
-
-for dev in MyDevices:
-    dev.BITE()
-    print(f"{dev.Name} : {dev.BITE_Status}")
-    PBIT = PBIT and dev.BITE_Status
-
-Print(f'PBIT result {"PASS" if PBIT else "FAIL"}')
-led.off()
+do_BITE()
 
 
 #================ DS operation ===================
@@ -153,10 +154,10 @@ class DS:
         a=DS.ListSpeed.index(_DS.Read(6))
         DS.set_speed(a-1)
 
-    def HW_Spray():     # For Now Spray operation done by DS, will change to FM
-        _DS.Write(15,75)
+    def HW_Spray(sp=75,ti=1000):     # For Now Spray operation done by DS, will change to FM
+        _DS.Write(15,sp)
         sleep(0.1)
-        _DS.Write(16,1000)
+        _DS.Write(16,ti)
         sleep(0.1)
         _DS.Write(17,1)
         sleep(0.1)
@@ -210,7 +211,7 @@ class DD:
         
         Print('SPRAYING IN PROGRESS')
         Task.Start()
-        
+
 
         DD.Task_Close()
 
@@ -312,7 +313,7 @@ class DD:
     6: Control Reg {HC->User control, Task-> Task assigned,}
     7: Task Reg {None,plant,disease_det,fert_spray}
     8: Field Details
-    9: 
+    9: Disease Identified read from 0x06 in DD
     '''
 
     def Detect():
@@ -342,8 +343,11 @@ class DD:
                 else:
                     Print('Invalid Command')
         
-        elif result == DD :
+            
+        elif result == 'DD' :
+            DATA[9] = _DD.Read(6)
             return True
+        
         else:
             return False
         
@@ -351,6 +355,9 @@ class DD:
 #================ HC operation ===================
 
 class User:
+    def CloseAll():
+        for de in MyDevices :
+            de.Write(19,'RESET')
     
     def raw_read():
         if HC.any():
@@ -358,8 +365,111 @@ class User:
             return t[1]    
         else:
             return ''
+        
+    def HMI():
+        if HC.any():
+            cm = (HC.read()).decode()
+
+            if cm == 'rst':
+                User.CloseAll()
+                import machine
+                machine.reset()
+
+            if cm == 'w':
+                DS.forward()
+
+            if cm == 'd':
+                DS.right()
+
+            if cm == 'a':
+                DS.left()
+
+            if cm == 's':
+                DS.backward()
+
+            if cm == ' ':
+                DS.stop()
+
+            if cm == 's+':
+                DS.speed_up()
+            if cm == 's-':
+                DS.speed_down()
 
 
+            if cm == 'det' or cm == 'dets':
+                re = DD.Detect()
+                if re == True:
+                    Print(f'{DATA[9]} detected')
+                    if cm =='dets':
+                        DS.HW_Spray()
+
+                else:
+                    Print(f'Not detected')
+
+            elif cm == 'BITE':
+                do_BITE()
+
+
+            
+            elif 'RF' in cm:
+                if 'DS' in cm:
+                    rw = cm.split('-')
+                    try:
+                        Add = int(rw[1])
+                        Print(f'{_DS.Read(Add)} @DS {hex(Add)}')
+
+                    except:
+                        Print('User R/W Error')
+
+                else :
+                    rw = cm.split('-')
+                    try:
+                        Add = int(rw[1])
+                        Print(f'{DATA[Add]} @Host {hex(Add)}')
+
+                    except:
+                        Print('User R/W Error')
+
+            elif 'WT' in cm:
+                if 'DS' in cm:
+                    rw = cm.split('-')
+                    try:
+                        Add = int(rw[1])
+                        try:
+                            Data= float(rw[2])
+                        except:
+                            Data = rw[2]
+
+                        _DS.Write(Add,Data)
+                        utime.sleep(0.2)
+                        Print(f'Writtern {_DS.Read(Add)} @DS {hex(Add)}')
+
+                    except:
+                        Print('User R/W Error')
+
+                else :
+                    rw = cm.split('-')
+                    try:
+                        Add = int(rw[1])
+                        try:
+                            Data= float(rw[2])
+                        except:
+                            Data = rw[2]
+
+                        _DS.Write(Add,Data)
+                        utime.sleep(0.2)
+                        Print(f'Writtern {DATA[Add]} @Host {hex(Add)}')
+
+                    except:
+                        Print('User R/W Error')
+
+            
+            
+
+        else:
+            return False
+
+    
 
 class F_module:     #Functional Module
     def HW_Spray():     # For Now Spray operation done by DS, will change to FM
