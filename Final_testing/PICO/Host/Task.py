@@ -1,5 +1,16 @@
 from DEVICES import *
+
 from time import sleep
+
+Print = None
+Input = None
+
+
+def Fun(p,i):
+    global Print, Input
+    Print = p
+    Input = i
+    
 
 class Spray:
 
@@ -34,7 +45,7 @@ class Spray:
                 elif result == True:
                     Print("Disease Detected!")
                     if self.Spray_flag == True:
-                        F_module.HW_Spray() 
+                        F_module.HW_Spray()
                         self.F_sprayed += 1
                         Print("\t Fertilizer Sprayed!")
                     else:
