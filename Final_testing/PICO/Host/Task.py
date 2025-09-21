@@ -4,12 +4,14 @@ from time import sleep
 
 Print = None
 Input = None
+User = None
 
 
-def Fun(p,i):
-    global Print, Input
+def Fun(p,i,u):
+    global Print, Input, User
     Print = p
     Input = i
+    User = u
     
 
 class Spray:

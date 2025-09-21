@@ -59,14 +59,14 @@ def Input(s,wait=False):
     if wait:
         while not (HC.any()):
             pass
-        t=str(HC.read()).decode()
-        return t[1]
+        t=HC.read().decode()
+        return t
     else:
         i=100
         while i>0:
             if HC.any():
-                t=str(HC.read()).split("'")
-                return t[1]
+                t=HC.read().decode()
+                return t
             i=i-1
             if (i%20 == 0):
                 HC.write('.\n\b')
@@ -80,9 +80,6 @@ def Print(s,end='\n'):
     HC.write(str(s)+end)
 
 
-Fun(Print,Input)
-
-F_Fun(Print,Input)
 #================= PBITE =========================
 def do_BITE():
     BITE=True
@@ -243,9 +240,7 @@ class DD:
             sleep(0.5)
             _jC+= 1
 
-            if _jC == 6:
-                print('DD as Master limit reached')
-
+            _iC=0
             while _DD.Read(5) ==1:
                 sleep(0.5)
                 if _iC == 50:
@@ -254,6 +249,7 @@ class DD:
                 _iC+=1
             
             if _DD.Read(5) == 2:
+                Print('Respond from DD')
                 sleep(0.5)
                 cmd = _DD.Read(10)
                 sleep(0.5)
@@ -529,7 +525,11 @@ while False:
             User.HMI()
     if User.raw_read() == 'con':
         break
-            
+         
+         
+Fun(Print,Input,User)
+
+F_Fun(Print,Input)
 do_BITE()
 
 #=================For testing =========================
