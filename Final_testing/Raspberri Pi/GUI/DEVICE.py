@@ -21,7 +21,7 @@ DATA = [0 for i in range(20)] # Data Regiters
 
 class DEV:
 
-    com = serial.Serial("/dev/serial0", baudrate=115200, timeout=1)
+    com = serial.Serial("/dev/serial0", baudrate=115200, timeout=0.3)
     com.flush()
     SlaveRegFlag = True
     Slave_Value = [[0,0,0,0],[1,0,0,0],[0,1,0,0],[1,1,0,0]] #
@@ -224,8 +224,8 @@ def DO_TASK(T,F,window):
             window.quit()
             print('Control through Remote')
   
-    except:
-       print("Error")
+    except Exception as e:
+       print("Error in T.doTask", e)
        Field_Close("Error",Field_add_window)
 
 
@@ -308,13 +308,14 @@ def USER_DD(T,F):
         elif DATA[5] == 3:
             Check()
          
-    
+    print('Data Loading..')
     DATA[11] = F.Name
-    DATA[12] = F.row
-    DATA[13] = F.col
+    DATA[12] = F.Row
+    DATA[13] = F.Com
     DATA[14] = F.Crop
     DATA[10]  = T
     DATA[5]  = 2
+    print('Data Loaded')
 
     while True:
         HOST.Receive()
@@ -330,33 +331,49 @@ def USER_DD(T,F):
 #====================================#
 
 #==== Disease Detector=============#
-'''
+
 from ultralytics import YOLO
 import cv2
 
-model = YOLO("Final_testing/Raspberri Pi/Main/best.pt")  
+model = YOLO("/home/MARS/Downloads/teest.pt")  
+cap = cv2.VideoCapture(0)
+sleep(1)
+    
+try:
+    print(cap.isOpened())
+    
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+except:
+    print('Cap Problem')
 
 def Detect():
+    print("Detecting")
     Det_Flag = False
     DATA[7] = 'W'
-    image = cv2.imread('')
+    _,image = cap.read()
 
     results = model(image)
+    sleep(0.2)
     boxes = results[0].boxes.xyxy.cpu().numpy()  # xyxy format (x_min, y_min, x_max, y_max)
     confidences = results[0].boxes.conf.cpu().numpy()  # Confidence scores
     class_ids = results[0].boxes.cls.cpu().numpy()  # Class labels
 
     class_names = model.names
+    print(class_names)
+    
     for box, confidence, class_id in zip(boxes, confidences, class_ids):
-        if confidence > 0.45:
+        if confidence > 0.15:
             Det_Flag = True
             x_min, y_min, x_max, y_max = map(int, box)
             label = f"{class_names[int(class_id)]}: {(confidence*100):.1f}%" 
             cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
             cv2.putText(image, label, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     cv2.imshow("YOLOv8 Detection", image)
+    cv2.imwrite("/home/MARS/Downloads/MSME-main/Final_testing/Raspberri Pi/Main/YOLOv8im.jpg", image)
+    print(Det_Flag)
     return Det_Flag
-'''
+
 def Main(): #should be invoke after clicking Connect in GUI
     HOST.Receive()
     DATA[15] = 'wait'
@@ -365,3 +382,7 @@ def Main(): #should be invoke after clicking Connect in GUI
         HOST.Receive()
         if DATA[15] == 'GUI':
             return
+while True:
+    Detect()
+
+    
