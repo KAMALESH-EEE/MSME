@@ -170,7 +170,7 @@ def add(n,r,c,crop,Field_add_window):
 
 
     except:
-        print("Error")
+        print("Error in F.add")
         Field_Close("Error",Field_add_window)
 
 def Del(F):
@@ -223,6 +223,6 @@ def Show(F):
         tk.Button(bottom_menu, text="Exit", font=("Arial", 14), command=lambda: Sub_window.destroy()).pack(side="left", padx=20)
   
     except:
-        print("Error")
+        print("Error in F.show")
         Field_Close("Error",Field_add_window)
 
