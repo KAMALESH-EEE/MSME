@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import cv2
 import os
 
-model = YOLO("Final_testing/Raspberri Pi/Main/best.pt")  
+model = YOLO("Final_testing\Raspberri Pi\Main\best.pt")  
 
 def Detect(a):
     image = cv2.imread(a)
