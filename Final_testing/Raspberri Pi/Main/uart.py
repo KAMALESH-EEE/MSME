@@ -1,6 +1,9 @@
 import cv2
 from picamera2 import Picamera2
 
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
 # Initialize the Picamera2 object
 picam2 = Picamera2()
 
