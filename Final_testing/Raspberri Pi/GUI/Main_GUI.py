@@ -35,6 +35,10 @@ def update_time():
     Sfg = 'green' if GUI_STAUS == 'CONNECTED' else 'red'
     gui_label.config(text=GUI_STAUS, fg = Sfg)
     Check()
+    if DATA[15] == 'HC':
+        window.destroy()
+        RCheck()
+        
     # Call this function again after 1000 ms (1 second)
     window.after(1000, update_time)
 
@@ -175,4 +179,8 @@ tk.Button(bottom_menu, text="Exit", font=("Arial", 14), command=window.quit).pac
 
 # Run the application
 window.mainloop()
+
+def RCheck():
+    while True:
+        Check()
 
