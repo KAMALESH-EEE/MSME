@@ -284,7 +284,7 @@ def Check():
         for i in range(DATA[6]):
             HOST.Receive()
             res = False
-            #res = res or Detect()
+            res = res or Detect()
         if res:
             DATA[7] = 'DD'
         else:
@@ -335,7 +335,7 @@ def USER_DD(T,F):
 from ultralytics import YOLO
 import cv2
 
-model = YOLO("/home/MARS/Downloads/teest.pt")  
+model = YOLO("/home/MARS/Downloads/best (4).pt")  
 cap = cv2.VideoCapture(0)
 sleep(1)
     
@@ -382,7 +382,7 @@ def Main(): #should be invoke after clicking Connect in GUI
         HOST.Receive()
         if DATA[15] == 'GUI':
             return
-while True:
+while False:
     Detect()
 
     
