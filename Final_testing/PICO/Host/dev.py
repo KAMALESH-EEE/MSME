@@ -21,7 +21,7 @@ class DEV:
     com = UART(0, baudrate = 115200)
     SlaveRegFlag = True
     Slave_Value = [[0,0,0,0],[1,0,0,0],[0,1,0,0],[1,1,0,0]] #
-    SPin = [] #Slave Pin declearation added @ Rutime
+    SPin = [] #Slave Pin declearation added @ Runtime
     FIFO = []
 
     def __init__(self,ID,Name, Slave = False):

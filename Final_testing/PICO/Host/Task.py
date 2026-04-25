@@ -1,4 +1,5 @@
 from DEVICES import *
+import DEVICES
 
 from time import sleep
 
@@ -38,7 +39,7 @@ class Spray:
                     return ''
 
                 Print(f"Row: {i} Checking....")
-                result = DD.Detect()
+                result = DEVICES.DD.Detect()
                 self.F_Matrix[j][i] = result
                 self.F_completed += 1
                 if result == 'Quit':
@@ -63,12 +64,12 @@ class Spray:
                     self.F_plant_skipped += 1
                     Print("\t Skipped...")
 
-                Automation.MoveNext()
+                DEVICES.Automation.MoveNext()
                 
             if RightLeft_flag:
-                Automation.MoveRight()
+                DEVICES.Automation.MoveRight()
             else:
-                Automation.MoveLeft()    
+                DEVICES.Automation.MoveLeft()    
             
             RightLeft_flag = not RightLeft_flag
 
